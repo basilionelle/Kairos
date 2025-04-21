@@ -1,0 +1,6 @@
+DATABASE_URL="mongodb+srv://basilionelle3:<db_password>@kairos.yhnas57.mongodb.net/?retryWrites=true&w=majority&appName=Kairos"
+NEXTAUTH_SECRET="kairos-nextauth-secret-key-2025"
+NEXTAUTH_URL="http://localhost:3004"
+
+# Important: Replace <db_password> with your actual MongoDB password
+# This file is only for reference - copy these values to your .env and .env.local files
