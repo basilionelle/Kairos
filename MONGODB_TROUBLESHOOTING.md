@@ -30,7 +30,7 @@ nvm use 18
 1. Download [MongoDB Compass](https://www.mongodb.com/products/compass)
 2. Connect to your cluster using the connection string:
    ```
-   mongodb+srv://basilionelle3:password123@kairos.yhnas57.mongodb.net/
+   mongodb+srv://<username>:<password>@<your-cluster-url>/
    ```
 3. Create a database named "kairos"
 4. Create a collection named "User"

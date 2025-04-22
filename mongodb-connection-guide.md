@@ -9,7 +9,7 @@ We attempted to connect to your MongoDB Atlas cluster but encountered a server s
 Make sure your `.env` and `.env.local` files contain the correct connection string with your actual password:
 
 ```env
-DATABASE_URL="mongodb+srv://basilionelle3:YOUR_ACTUAL_PASSWORD@kairos.yhnas57.mongodb.net/?retryWrites=true&w=majority&appName=Kairos"
+DATABASE_URL="mongodb+srv://<username>:<password>@<your-cluster-url>/?retryWrites=true&w=majority&appName=<app-name>"
 NEXTAUTH_SECRET="kairos-nextauth-secret-key-2025"
 NEXTAUTH_URL="http://localhost:3004"
 ```
