@@ -104,6 +104,7 @@ interface AppCard {
   icon: React.ReactNode;
   isNew?: boolean;
   university?: string;
+  link: string;
 }
 
 export default function Marketplace() {
@@ -142,6 +143,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '2',
@@ -156,11 +158,12 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '3',
-      name: 'Grade Predictor',
-      description: 'Estimate your final course grades',
+      name: 'AS Autoclicker',
+      description: 'Have your computer spam click to snipe some slots',
       rating: 4,
       category: 'newest',
       icon: (
@@ -170,6 +173,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: 'https://github.com/plvzfq-rit/AS-Autoenlister/releases/latest'
     },
     {
       id: '4',
@@ -184,6 +188,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '5',
@@ -198,6 +203,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '6',
@@ -212,6 +218,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '7',
@@ -226,6 +233,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '8',
@@ -240,6 +248,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '9',
@@ -254,6 +263,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '10',
@@ -268,6 +278,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '11',
@@ -285,6 +296,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '12',
@@ -300,6 +312,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '13',
@@ -315,6 +328,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
     {
       id: '14',
@@ -330,6 +344,7 @@ export default function Marketplace() {
           </svg>
         </div>
       ),
+      link: '#'
     },
   ];
 
@@ -465,39 +480,43 @@ export default function Marketplace() {
                     </div>
                   )}
                   {style.layout === 'horizontal' ? (
-                    <div className="flex flex-col space-y-2 h-full justify-start text-left">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-white/10 shadow-inner shadow-black/10">
-                          {app.icon}
+                    <a href={app.link}>
+                      <div className="flex flex-col space-y-2 h-full justify-start text-left">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-white/10 shadow-inner shadow-black/10">
+                            {app.icon}
+                          </div>
+                          <h3 className={`text-lg font-semibold ${style.text} leading-tight`}>
+                            {app.name}
+                          </h3>
                         </div>
-                        <h3 className={`text-lg font-semibold ${style.text} leading-tight`}>
-                          {app.name}
-                        </h3>
+                        <p className={`text-sm ${style.text === 'text-white' ? 'text-white/90' : 'opacity-80'} leading-tight`}>
+                          {app.description}
+                        </p>
+                        <div className="mt-auto pt-2 border-t border-white/10">
+                          {renderStars(app.rating, style.stars)}
+                        </div>
                       </div>
-                      <p className={`text-sm ${style.text === 'text-white' ? 'text-white/90' : 'opacity-80'} leading-tight`}>
-                        {app.description}
-                      </p>
-                      <div className="mt-auto pt-2 border-t border-white/10">
-                        {renderStars(app.rating, style.stars)}
-                      </div>
-                    </div>
+                    </a>
                   ) : (
-                    <div className="flex flex-col space-y-2 h-full justify-start text-left">
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 rounded-lg bg-white/10 shadow-inner shadow-black/10">
-                          {app.icon}
+                    <a href={app.link}>
+                      <div className="flex flex-col space-y-2 h-full justify-start text-left">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 rounded-lg bg-white/10 shadow-inner shadow-black/10">
+                            {app.icon}
+                          </div>
+                          <h3 className={`text-lg font-semibold ${style.text} leading-tight`}>
+                            {app.name}
+                          </h3>
                         </div>
-                        <h3 className={`text-lg font-semibold ${style.text} leading-tight`}>
-                          {app.name}
-                        </h3>
+                        <p className={`text-sm ${style.text === 'text-white' ? 'text-white/90' : 'opacity-80'} leading-tight`}>
+                          {app.description}
+                        </p>
+                        <div className="mt-auto pt-2 border-t border-white/10">
+                          {renderStars(app.rating, style.stars)}
+                        </div>
                       </div>
-                      <p className={`text-sm ${style.text === 'text-white' ? 'text-white/90' : 'opacity-80'} leading-tight`}>
-                        {app.description}
-                      </p>
-                      <div className="mt-auto pt-2 border-t border-white/10">
-                        {renderStars(app.rating, style.stars)}
-                      </div>
-                    </div>
+                    </a>
                   )}
                 </motion.div>
               );
