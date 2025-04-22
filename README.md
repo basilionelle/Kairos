@@ -6,7 +6,7 @@ A comprehensive, modern web application for student productivity tools with a dy
 
 ## 🚀 Live Demo
 
-Visit [Kairos Platform](https://kairos-student.netlify.app) to see the live application.
+Visit [Kairos Platform](https://kairos-ph.netlify.app/) to see the live application.
 
 ## ✨ Features
 
