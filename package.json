@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/netlify-prisma-fix.js && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "setup-db": "ts-node scripts/setup-db.ts",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "netlify-postbuild": "node scripts/netlify-prisma-fix.js"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
