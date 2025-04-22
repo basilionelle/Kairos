@@ -54,7 +54,7 @@ const handler = NextAuth({
   ],
   pages: {
     signIn: "/signin",
-    signUp: "/signup",
+    // NextAuth doesn't support signUp in its type definitions
   },
   callbacks: {
     async session({ session }) {

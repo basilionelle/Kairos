@@ -27,7 +27,8 @@ const handler = NextAuth({
   ],
   pages: {
     signIn: "/signin",
-    signUp: "/signup",
+    // NextAuth doesn't have a signUp page option in its type definitions
+    // signUp: "/signup",
   },
   session: {
     strategy: "jwt",
