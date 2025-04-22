@@ -2,8 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // Use standalone output for Netlify
-  output: 'standalone',
+  // Remove output: 'standalone' to work with Netlify's Next.js plugin
   // Ensure trailing slashes for consistent routing
   trailingSlash: true,
 };
