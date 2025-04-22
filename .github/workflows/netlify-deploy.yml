@@ -33,9 +33,9 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           netlify deploy \
-            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
-            --site ${{ secrets.NETLIFY_SITE_ID }} \
-            --dir=.next \
+            --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" \
+            --site "${{ secrets.NETLIFY_SITE_ID }}" \
+            --dir=out \
             --message "Deploy Preview for PR #${{ github.event.pull_request.number }}" \
             --json
         env:
@@ -46,9 +46,9 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           netlify deploy \
-            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
-            --site ${{ secrets.NETLIFY_SITE_ID }} \
-            --dir=.next \
+            --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" \
+            --site "${{ secrets.NETLIFY_SITE_ID }}" \
+            --dir=out \
             --prod \
             --message "Production deploy from GitHub Actions" \
             --json
