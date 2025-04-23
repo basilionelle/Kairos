@@ -33,29 +33,62 @@ export default function WaitlistSignup() {
       return;
     }
     
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
-      // Submit to our waitlist API endpoint
-      const response = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      // Submit to our waitlist API endpoint with retry logic
+      let retries = 2;
+      let response;
       
-      const data = await response.json();
+      while (retries >= 0) {
+        try {
+          response = await fetch('/api/waitlist', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+            // Add cache control to prevent caching issues
+            cache: 'no-store',
+          });
+          break; // If successful, exit the retry loop
+        } catch (fetchError) {
+          console.warn(`Fetch attempt failed, retries left: ${retries}`, fetchError);
+          if (retries === 0) throw fetchError;
+          retries--;
+          // Wait before retrying
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+      
+      if (!response) {
+        throw new Error('Network error. Please check your connection and try again.');
+      }
+      
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('Error parsing response:', jsonError);
+        throw new Error('Unable to process server response. Please try again.');
+      }
       
       if (!response.ok) {
-        throw new Error(data.error || 'Something went wrong');
+        throw new Error(data.error || 'Something went wrong with your submission. Please try again.');
       }
       
       console.log('Waitlist submission successful:', data);
       setIsSubmitted(true);
     } catch (err: any) {
       console.error('Waitlist submission error:', err);
-      setError(err.message || 'An error occurred. Please try again.');
+      setError(err.message || 'An error occurred while processing your request. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -100,8 +133,14 @@ export default function WaitlistSignup() {
                 <div className="space-y-6">
                   
                   {error && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
-                      {error}
+                    <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-md mb-4 shadow-sm">
+                      <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        <span className="font-medium">Failed to process your request</span>
+                      </div>
+                      <p className="mt-1 ml-7 text-sm">{error}</p>
                     </div>
                   )}
                   

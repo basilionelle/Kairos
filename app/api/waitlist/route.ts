@@ -5,16 +5,37 @@ import path from 'path';
 // File to store waitlist submissions
 const waitlistFile = path.join(process.cwd(), 'data', 'waitlist.json');
 
+// In-memory fallback for Netlify environment
+let inMemoryWaitlist: any[] = [];
+
+// Check if we're in a read-only environment (like Netlify)
+const isReadOnlyEnvironment = () => {
+  // Check for Netlify environment
+  return process.env.NETLIFY || process.env.CONTEXT === 'production' || process.env.NODE_ENV === 'production';
+};
+
 // Ensure the data directory exists
 function ensureDirectoryExists() {
+  if (isReadOnlyEnvironment()) return; // Skip in read-only environments
+  
   const dataDir = path.join(process.cwd(), 'data');
   if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+    try {
+      fs.mkdirSync(dataDir, { recursive: true });
+    } catch (error) {
+      console.error('Failed to create data directory:', error);
+      // Continue execution - we'll use in-memory storage
+    }
   }
 }
 
 // Load existing waitlist entries
 function loadWaitlist() {
+  // If we already have in-memory data and we're in a read-only environment, use that
+  if (isReadOnlyEnvironment() && inMemoryWaitlist.length > 0) {
+    return inMemoryWaitlist;
+  }
+  
   ensureDirectoryExists();
   
   if (!fs.existsSync(waitlistFile)) {
@@ -23,7 +44,10 @@ function loadWaitlist() {
   
   try {
     const data = fs.readFileSync(waitlistFile, 'utf8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    // Update in-memory cache
+    inMemoryWaitlist = parsed;
+    return parsed;
   } catch (error) {
     console.error('Error loading waitlist data:', error);
     return [];
@@ -32,12 +56,22 @@ function loadWaitlist() {
 
 // Save waitlist entries
 function saveWaitlist(entries: any[]) {
+  // Always update in-memory storage
+  inMemoryWaitlist = entries;
+  
+  // Skip file operations in read-only environments
+  if (isReadOnlyEnvironment()) {
+    console.log('In read-only environment, skipping file write');
+    return;
+  }
+  
   ensureDirectoryExists();
   
   try {
     fs.writeFileSync(waitlistFile, JSON.stringify(entries, null, 2), 'utf8');
   } catch (error) {
     console.error('Error saving waitlist data:', error);
+    // Continue execution - we've already saved to in-memory storage
   }
 }
 
