@@ -51,7 +51,7 @@ const Header = () => {
       <div className="flex items-center space-x-4">
         {showAdmin && (
           <Link 
-            href="/analytics" 
+            href="/analytics-dashboard" 
             className="text-white hover:text-blue-200 text-sm font-medium transition-colors"
           >
             Analytics
