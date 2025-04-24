@@ -18,13 +18,19 @@ const ANALYTICS_FILE = path.join(process.cwd(), 'data', 'analytics.json');
 
 // Ensure analytics directory exists
 const ensureAnalyticsFile = () => {
-  const dir = path.dirname(ANALYTICS_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  
-  if (!fs.existsSync(ANALYTICS_FILE)) {
-    fs.writeFileSync(ANALYTICS_FILE, JSON.stringify({ pageViews: [] }));
+  try {
+    const dir = path.dirname(ANALYTICS_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    if (!fs.existsSync(ANALYTICS_FILE)) {
+      fs.writeFileSync(ANALYTICS_FILE, JSON.stringify({ pageViews: [] }));
+    }
+    return true;
+  } catch (error) {
+    console.error('Error ensuring analytics file:', error);
+    return false;
   }
 };
 
