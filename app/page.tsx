@@ -1,16 +1,6 @@
-import { ClientWrapper } from '@/components/ClientWrapper';
-
-const HomePage = () => {
-  return (
-    <ClientWrapper>
-      <HomeContent />
-    </ClientWrapper>
-  );
-};
-
-export default HomePage;
-
 'use client';
+
+import { ClientWrapper } from '@/components/ClientWrapper';
 
 import Header from '../components/Header';
 import Hero from '../components/Hero';
@@ -37,3 +27,13 @@ function HomeContent() {
     </main>
   );
 }
+
+const HomePage = () => {
+  return (
+    <ClientWrapper>
+      <HomeContent />
+    </ClientWrapper>
+  );
+};
+
+export default HomePage;

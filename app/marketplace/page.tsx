@@ -1,16 +1,6 @@
-import { ClientWrapper } from '@/components/ClientWrapper';
-
-const MarketplacePage = () => {
-  return (
-    <ClientWrapper>
-      <MarketplaceContent />
-    </ClientWrapper>
-  );
-};
-
-export default MarketplacePage;
-
 'use client';
+
+import { ClientWrapper } from '@/components/ClientWrapper';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -539,3 +529,13 @@ function MarketplaceContent() {
     </main>
   );
 }
+
+const MarketplacePage = () => {
+  return (
+    <ClientWrapper>
+      <MarketplaceContent />
+    </ClientWrapper>
+  );
+};
+
+export default MarketplacePage;

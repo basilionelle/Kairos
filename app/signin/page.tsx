@@ -1,16 +1,6 @@
-import { ClientWrapper } from '@/components/ClientWrapper';
-
-const SignInPage = () => {
-  return (
-    <ClientWrapper>
-      <SignInContent />
-    </ClientWrapper>
-  );
-};
-
-export default SignInPage;
-
 'use client';
+
+import { ClientWrapper } from '@/components/ClientWrapper';
 
 import Link from 'next/link';
 import { useState } from 'react';
@@ -225,3 +215,13 @@ function SignInContent() {
     </main>
   );
 }
+
+const SignInPage = () => {
+  return (
+    <ClientWrapper>
+      <SignInContent />
+    </ClientWrapper>
+  );
+};
+
+export default SignInPage;

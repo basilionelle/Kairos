@@ -1,16 +1,6 @@
-import { ClientWrapper } from '@/components/ClientWrapper';
-
-const AnalyticsPage = () => {
-  return (
-    <ClientWrapper>
-      <AnalyticsContent />
-    </ClientWrapper>
-  );
-};
-
-export default AnalyticsPage;
-
 'use client';
+
+import { ClientWrapper } from '@/components/ClientWrapper';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -55,7 +45,7 @@ const fetchAnalyticsData = async (): Promise<AnalyticsData> => {
   }
 };
 
-function AnalyticsContent() {
+const AnalyticsContent = () => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -159,3 +149,13 @@ function AnalyticsContent() {
     </div>
   );
 }
+
+const AnalyticsPage = () => {
+  return (
+    <ClientWrapper>
+      <AnalyticsContent />
+    </ClientWrapper>
+  );
+};
+
+export default AnalyticsPage;

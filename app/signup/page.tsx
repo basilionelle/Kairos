@@ -1,16 +1,6 @@
-import { ClientWrapper } from '@/components/ClientWrapper';
-
-const SignUpPage = () => {
-  return (
-    <ClientWrapper>
-      <SignUpContent />
-    </ClientWrapper>
-  );
-};
-
-export default SignUpPage;
-
 'use client';
+
+import { ClientWrapper } from '@/components/ClientWrapper';
 
 import Link from 'next/link';
 import { useState } from 'react';
@@ -199,3 +189,13 @@ function SignUpContent() {
     </main>
   );
 }
+
+const SignUpPage = () => {
+  return (
+    <ClientWrapper>
+      <SignUpContent />
+    </ClientWrapper>
+  );
+};
+
+export default SignUpPage;
