@@ -1,4 +1,9 @@
-import NextAuth from "next-auth";
+import NextAuth from 'next-auth';
+
+// Configure the route as dynamic to avoid static generation errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 

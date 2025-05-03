@@ -3,6 +3,10 @@ import { getServerSession } from 'next-auth/next';
 import prisma from '../../../../lib/prisma';
 import { hashPassword, comparePassword } from '../../../../lib/auth';
 
+// Configure the route as dynamic to avoid static generation errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Get user profile
 export async function GET(request: NextRequest) {
   try {

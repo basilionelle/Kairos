@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../lib/prisma';
 import crypto from 'crypto';
 
+// Configure the route as dynamic to avoid static generation errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Request email verification
 export async function POST(request: NextRequest) {
   try {

@@ -1,3 +1,15 @@
+import { ClientWrapper } from '@/components/ClientWrapper';
+
+const MarketplacePage = () => {
+  return (
+    <ClientWrapper>
+      <MarketplaceContent />
+    </ClientWrapper>
+  );
+};
+
+export default MarketplacePage;
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -107,7 +119,7 @@ interface AppCard {
   link: string;
 }
 
-export default function Marketplace() {
+function MarketplaceContent() {
   const { theme } = useTheme();
   const [activeCategory, setActiveCategory] = useState<Category>('newest');
   const [isSticky, setIsSticky] = useState(false);

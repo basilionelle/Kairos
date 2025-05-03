@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
 interface PageView {
   path: string;
@@ -132,8 +132,8 @@ export const clearAnalytics = (): void => {
   }
 };
 
-// Client analytics component
-export function ClientAnalytics() {
+// Analytics tracker component that uses search params
+function AnalyticsTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   
@@ -151,5 +151,14 @@ export function ClientAnalytics() {
     }
   }, [pathname, searchParams]);
 
-  return null; // This component doesn't render anything
+  return null;
+}
+
+// Client analytics component
+export function ClientAnalytics() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsTracker />
+    </Suspense>
+  );
 }

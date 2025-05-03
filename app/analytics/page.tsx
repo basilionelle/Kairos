@@ -1,3 +1,15 @@
+import { ClientWrapper } from '@/components/ClientWrapper';
+
+const AnalyticsPage = () => {
+  return (
+    <ClientWrapper>
+      <AnalyticsContent />
+    </ClientWrapper>
+  );
+};
+
+export default AnalyticsPage;
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -43,7 +55,7 @@ const fetchAnalyticsData = async (): Promise<AnalyticsData> => {
   }
 };
 
-export default function AnalyticsDashboard() {
+function AnalyticsContent() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 

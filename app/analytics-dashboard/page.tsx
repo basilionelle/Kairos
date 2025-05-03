@@ -1,3 +1,15 @@
+import { ClientWrapper } from '@/components/ClientWrapper';
+
+const AnalyticsDashboardPage = () => {
+  return (
+    <ClientWrapper>
+      <AnalyticsDashboardContent />
+    </ClientWrapper>
+  );
+};
+
+export default AnalyticsDashboardPage;
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -16,7 +28,7 @@ interface AnalyticsSummary {
   pageViews: PageViewData[];
 }
 
-export default function AnalyticsDashboard() {
+function AnalyticsDashboardContent() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
 

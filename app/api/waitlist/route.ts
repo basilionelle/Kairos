@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+// Configure the route as dynamic to avoid static generation errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // File to store waitlist submissions
 const waitlistFile = path.join(process.cwd(), 'data', 'waitlist.json');
 

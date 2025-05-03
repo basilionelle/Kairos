@@ -2,10 +2,10 @@
 
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
-// Simple analytics component that can be used with various analytics providers
-export function Analytics() {
+// Analytics tracking component that uses search params
+function AnalyticsTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   
@@ -35,6 +35,12 @@ export function Analytics() {
     }
   }, [pathname, searchParams]);
 
+  return null;
+}
+
+// Simple analytics component that can be used with various analytics providers
+export function Analytics() {
+
   return (
     <>
       {/* Umami Analytics Script - Replace YOUR_WEBSITE_ID with your actual ID when you set up umami */}
@@ -44,6 +50,9 @@ export function Analytics() {
         data-website-id="YOUR_WEBSITE_ID"
         strategy="afterInteractive"
       />
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
     </>
   );
 }

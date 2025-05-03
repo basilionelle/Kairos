@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+// Configure the route as dynamic to avoid static generation errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { getServerSession } from 'next-auth/next';
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';

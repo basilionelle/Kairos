@@ -2,12 +2,10 @@
 
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
-// Replace with your actual Google Analytics Measurement ID
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; 
-
-export function GoogleAnalytics() {
+// Analytics tracking component that uses search params
+function AnalyticsTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -18,13 +16,21 @@ export function GoogleAnalytics() {
         : pathname;
         
       // Send pageview with path
-      if (window.gtag) {
+      if (typeof window !== 'undefined' && window.gtag) {
         window.gtag('config', GA_MEASUREMENT_ID, {
           page_path: url,
         });
       }
     }
   }, [pathname, searchParams]);
+
+  return null;
+}
+
+// Replace with your actual Google Analytics Measurement ID
+const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; 
+
+export function GoogleAnalytics() {
 
   return (
     <>
@@ -46,6 +52,9 @@ export function GoogleAnalytics() {
           `,
         }}
       />
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
     </>
   );
 }

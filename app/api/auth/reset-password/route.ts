@@ -3,6 +3,10 @@ import prisma from '../../../../lib/prisma';
 import { hashPassword } from '../../../../lib/auth';
 import crypto from 'crypto';
 
+// Configure the route as dynamic to avoid static generation errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Request password reset
 export async function POST(request: NextRequest) {
   try {

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { trackPageView, getAnalyticsSummary } from '@/lib/analytics';
 
+// Configure the route as dynamic to avoid static generation errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Define PageView interface for type safety
 interface PageView {
   path: string;
@@ -32,10 +36,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Path is required' }, { status: 400 });
     }
     
-    // Get IP address and user agent
-    const ip = request.headers.get('x-forwarded-for') || 'unknown';
-    const userAgent = request.headers.get('user-agent') || 'unknown';
-    const referrer = request.headers.get('referer') || '';
+    // Get IP address and user agent - safely handle headers for static generation
+    let ip = 'unknown';
+    let userAgent = 'unknown';
+    let referrer = '';
+    
+    try {
+      ip = request.headers.get('x-forwarded-for') || 'unknown';
+      userAgent = request.headers.get('user-agent') || 'unknown';
+      referrer = request.headers.get('referer') || '';
+    } catch (error) {
+      console.error('Error accessing headers:', error);
+    }
     
     const pageView = {
       path,

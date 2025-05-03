@@ -1,10 +1,22 @@
+import { ClientWrapper } from '@/components/ClientWrapper';
+
+const SignUpPage = () => {
+  return (
+    <ClientWrapper>
+      <SignUpContent />
+    </ClientWrapper>
+  );
+};
+
+export default SignUpPage;
+
 'use client';
 
 import Link from 'next/link';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 
-export default function SignUp() {
+function SignUpContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',

@@ -1,10 +1,22 @@
+import { ClientWrapper } from '@/components/ClientWrapper';
+
+const SignInPage = () => {
+  return (
+    <ClientWrapper>
+      <SignInContent />
+    </ClientWrapper>
+  );
+};
+
+export default SignInPage;
+
 'use client';
 
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function WaitlistSignup() {
+function SignInContent() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
