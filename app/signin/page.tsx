@@ -117,30 +117,30 @@ function SignInContent() {
       }}
     >
       {/* Top navigation */}
-      <div className="w-full py-6 px-6 md:px-10 flex justify-between items-center">
-        <Link href="/" className="text-white text-4xl font-bold">Kairos</Link>
+      <div className="w-full py-4 sm:py-6 px-4 sm:px-6 md:px-10 flex justify-between items-center">
+        <Link href="/" className="text-white text-3xl sm:text-4xl font-bold">Kairos</Link>
         <Link 
           href="/" 
-          className="bg-white text-kairos-primary px-4 py-1.5 rounded-full text-sm font-medium hover:bg-gray-50 transition-all shadow-sm"
+          className="bg-white text-kairos-primary px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium hover:bg-gray-50 transition-all shadow-sm"
         >
           Home
         </Link>
       </div>
 
       {/* Main content */}
-      <div className="flex flex-col md:flex-row flex-1 items-center justify-center gap-y-12 md:gap-x-16 px-6 md:px-10 py-10 max-w-6xl mx-auto">
+      <div className="flex flex-col md:flex-row flex-1 items-center justify-center gap-y-8 md:gap-y-12 md:gap-x-16 px-4 sm:px-6 md:px-10 py-6 sm:py-10 max-w-6xl mx-auto">
         {/* Left side - Kairos logo */}
         <div className="flex items-center justify-center md:justify-end md:w-2/5">
-          <h1 className="text-white text-6xl lg:text-7xl font-bold">Kairos</h1>
+          <h1 className="text-white text-5xl sm:text-6xl lg:text-7xl font-bold">Kairos</h1>
         </div>
 
         {/* Right side - Waitlist form */}
-        <div className="w-full md:w-3/5 flex justify-center md:justify-end pr-8 lg:pr-16">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full sm:w-[480px]">
+        <div className="w-full md:w-3/5 flex justify-center md:justify-start lg:justify-end md:pr-0 lg:pr-8 xl:pr-16">
+          <div className="bg-white rounded-lg shadow-lg p-5 sm:p-8 w-full max-w-[360px] sm:max-w-[420px] md:max-w-[480px]">
             {!isSubmitted ? (
               <>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Join Waitlist</h2>
-                <p className="text-gray-600 mb-6">Be the first to know about our updates</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Join Waitlist</h2>
+                <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">Be the first to know about our updates</p>
                 
                 <div className="space-y-6">
                   
@@ -156,41 +156,41 @@ function SignInContent() {
                     </div>
                   )}
                   
-                  <form className="space-y-5" onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                     <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Your name</label>
                       <input
+                        type="text"
                         id="name"
                         name="name"
-                        type="text"
-                        autoComplete="name"
-                        required
                         value={formData.name}
                         onChange={handleChange}
-                        className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
-                        placeholder="Your name"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter your name"
+                        disabled={isLoading}
                       />
                     </div>
                     
                     <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
                       <input
+                        type="email"
                         id="email"
                         name="email"
-                        type="email"
-                        autoComplete="email"
-                        required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
-                        placeholder="Email address"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter your email"
+                        disabled={isLoading}
                       />
                     </div>
-
+                    
                     <button
                       type="submit"
+                      className="w-full bg-orange-400 hover:bg-orange-500 text-white font-medium py-2 px-4 rounded-md shadow-sm disabled:opacity-70 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                       disabled={isLoading}
-                      className="w-full bg-[#f7931a] hover:bg-[#e68619] text-white font-medium py-4 px-6 text-lg rounded-md transition-colors duration-200"
                     >
-                      {isLoading ? 'Submitting...' : 'Join Waitlist'}
+                      {isLoading ? 'Processing...' : 'Join Waitlist'}
                     </button>
                   </form>
                 </div>
@@ -202,20 +202,20 @@ function SignInContent() {
                 </div>
               </>
             ) : (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="text-center py-6 sm:py-10">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 sm:h-12 w-10 sm:w-12 mx-auto text-green-500 mb-3 sm:mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Thank You!</h3>
+                  <p className="text-gray-600 text-sm sm:text-base">You've been added to our waitlist. We'll email you when access is available.</p>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">You're on the list!</h2>
-                <p className="text-gray-600 mb-6">Thank you for your interest in Kairos</p>
-                <p className="text-sm text-gray-500 mb-4">We'll email you at <span className="font-medium">{formData.email}</span> when access is available.</p>
+                
                 <Link 
                   href="/" 
-                  className="inline-block bg-kairos-primary text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-kairos-primary/90 transition-colors"
+                  className="text-blue-600 hover:text-blue-800 font-medium text-sm sm:text-base"
                 >
-                  Return Home
+                  Return to Home
                 </Link>
               </div>
             )}

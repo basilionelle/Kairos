@@ -132,9 +132,17 @@ export async function POST(request: Request) {
 
 export async function GET() {
   // This endpoint would normally be protected with authentication
-  // For now, we'll just return a message
-  return NextResponse.json(
-    { message: 'Waitlist API is working' },
-    { status: 200 }
-  );
+  try {
+    const entries = loadWaitlist();
+    return NextResponse.json(
+      { entries },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error retrieving waitlist entries:', error);
+    return NextResponse.json(
+      { error: 'Failed to retrieve waitlist entries' },
+      { status: 500 }
+    );
+  }
 }
