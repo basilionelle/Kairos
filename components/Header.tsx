@@ -41,25 +41,26 @@ const Header = () => {
   };
 
   return (
-    <header className="w-full py-8 px-6 md:px-10 flex justify-between items-center max-w-screen-xl mx-auto">
+    <header className="w-full py-4 sm:py-6 md:py-8 px-4 sm:px-6 md:px-10 flex justify-between items-center max-w-screen-xl mx-auto">
       <div 
-        className="text-white font-bold text-4xl tracking-tight cursor-pointer" 
+        className="text-white font-bold text-2xl sm:text-3xl md:text-4xl tracking-tight cursor-pointer" 
         onClick={handleLogoClick}
+        aria-label="Kairos Logo"
       >
         Kairos
       </div>
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 sm:space-x-4">
         {showAdmin && (
           <Link 
             href="/analytics-dashboard" 
-            className="text-white hover:text-blue-200 text-sm font-medium transition-colors"
+            className="text-white hover:text-blue-200 text-xs sm:text-sm font-medium transition-colors"
           >
             Analytics
           </Link>
         )}
         <Link 
           href="/signin" 
-          className="bg-white text-kairos-primary px-4 py-1.5 rounded-full text-sm font-medium hover:bg-opacity-95 transition-all shadow-sm"
+          className="bg-white text-kairos-primary px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium hover:bg-opacity-95 shadow-sm"
         >
           Sign in
         </Link>

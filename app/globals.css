@@ -25,7 +25,7 @@ html, body {
   background-image: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
 }
 
-/* Animation for floating elements */
+/* Animation for floating elements - optimized for performance */
 @keyframes float {
   0% {
     transform: translateY(0px);
@@ -38,16 +38,48 @@ html, body {
   }
 }
 
+/* Gentler animation with reduced movement for better performance */
+@keyframes float-gentle {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Apply will-change only when animation is active for better performance */
 .animate-float {
   animation: float 6s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-float-slow {
   animation: float 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-gentle {
+  animation: float-gentle 6s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-float-fast {
   animation: float 4s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Reduce motion for users who prefer reduced motion */
+@media (prefers-reduced-motion) {
+  .animate-float,
+  .animate-float-slow,
+  .animate-float-gentle,
+  .animate-float-fast {
+    animation: none;
+  }
 }
 
 /* Hide scrollbar but keep functionality */

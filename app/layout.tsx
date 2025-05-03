@@ -8,7 +8,9 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Kairos',
-  description: 'A Next.js application with Tailwind CSS',
+  description: 'The Student-Powered Toolkit for College Success',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+  themeColor: '#4362d5',
 };
 
 export default function RootLayout({
@@ -20,8 +22,10 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <GoogleAnalytics />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="format-detection" content="telephone=no" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} antialiased text-base`}>
         <Providers>
           {children}
         </Providers>
