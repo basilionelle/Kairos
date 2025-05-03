@@ -1,20 +1,22 @@
 'use client';
 
 import { ClientWrapper } from '@/components/ClientWrapper';
-
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSupabase } from '@/components/SupabaseProvider';
 
-function SignInContent() {
+const SignInContent = () => {
   const router = useRouter();
+  const { supabase } = useSupabase();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
-    name: ''
+    password: ''
   });
   const [error, setError] = useState('');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'waitlist'>('signin');
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -30,11 +32,6 @@ function SignInContent() {
       return;
     }
     
-    if (!formData.name) {
-      setError('Name is required');
-      return;
-    }
-    
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
@@ -45,165 +42,257 @@ function SignInContent() {
     setIsLoading(true);
     
     try {
-      // Submit to our waitlist API endpoint with retry logic
-      let retries = 2;
-      let response;
-      
-      while (retries >= 0) {
-        try {
-          response = await fetch('/api/waitlist', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-            // Add cache control to prevent caching issues
-            cache: 'no-store',
-          });
-          break; // If successful, exit the retry loop
-        } catch (fetchError) {
-          console.warn(`Fetch attempt failed, retries left: ${retries}`, fetchError);
-          if (retries === 0) throw fetchError;
-          retries--;
-          // Wait before retrying
-          await new Promise(resolve => setTimeout(resolve, 1000));
+      if (mode === 'waitlist') {
+        // Submit to waitlist API
+        const response = await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            name: formData.email.split('@')[0] // Use part of email as name
+          }),
+          cache: 'no-store',
+        });
+        
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to join waitlist');
         }
+        
+        setIsSubmitted(true);
+      } else if (mode === 'signin') {
+        // Sign in with Supabase
+        if (!formData.password) {
+          setError('Password is required');
+          setIsLoading(false);
+          return;
+        }
+        
+        const { error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+        
+        // Redirect to dashboard on successful sign in
+        router.push('/dashboard');
+      } else if (mode === 'signup') {
+        // Sign up with Supabase
+        if (!formData.password) {
+          setError('Password is required');
+          setIsLoading(false);
+          return;
+        }
+        
+        if (formData.password.length < 6) {
+          setError('Password must be at least 6 characters');
+          setIsLoading(false);
+          return;
+        }
+        
+        const { error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+        
+        // Show confirmation message
+        setIsSubmitted(true);
       }
-      
-      if (!response) {
-        throw new Error('Network error. Please check your connection and try again.');
-      }
-      
-      let data;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        console.error('Error parsing response:', jsonError);
-        throw new Error('Unable to process server response. Please try again.');
-      }
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Something went wrong with your submission. Please try again.');
-      }
-      
-      console.log('Waitlist submission successful:', data);
-      setIsSubmitted(true);
     } catch (err: any) {
-      console.error('Waitlist submission error:', err);
-      setError(err.message || 'An error occurred while processing your request. Please try again later.');
+      console.error('Authentication error:', err);
+      setError(err.message || 'An error occurred. Please try again later.');
     } finally {
       setIsLoading(false);
     }
   };
+  
   return (
     <main 
       className="relative min-h-screen overflow-hidden flex flex-col"
       style={{
-        backgroundImage: 'url(/images/KAIROSBG.svg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundColor: '#4362d5'
+        background: 'linear-gradient(135deg, #0a2463 0%, #3e92cc 100%)',
       }}
     >
-      {/* Top navigation */}
-      <div className="w-full py-4 sm:py-6 px-4 sm:px-6 md:px-10 flex justify-between items-center">
-        <Link href="/" className="text-white text-3xl sm:text-4xl font-bold">Kairos</Link>
-        <Link 
-          href="/" 
-          className="bg-white text-kairos-primary px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium hover:bg-gray-50 transition-all shadow-sm"
-        >
-          Home
-        </Link>
-      </div>
-
-      {/* Main content */}
-      <div className="flex flex-col md:flex-row flex-1 items-center justify-center gap-y-8 md:gap-y-12 md:gap-x-16 px-4 sm:px-6 md:px-10 py-6 sm:py-10 max-w-6xl mx-auto">
-        {/* Left side - Kairos logo */}
-        <div className="flex items-center justify-center md:justify-end md:w-2/5">
-          <h1 className="text-white text-5xl sm:text-6xl lg:text-7xl font-bold">Kairos</h1>
+      <div className="flex-1 flex flex-col md:flex-row">
+        {/* Left Column - Blue Background with Logo */}
+        <div className="md:w-1/2 bg-blue-900 flex flex-col items-center justify-center p-8 text-white">
+          <div className="max-w-md w-full">
+            <Link href="/" className="inline-block mb-8">
+              <h1 className="text-4xl font-bold text-white">Kairos</h1>
+            </Link>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">Welcome to Kairos</h2>
+            <p className="text-lg md:text-xl opacity-90 mb-8">
+              {mode === 'waitlist' ? 
+                'Join our waitlist to get early access to our platform and be the first to know when we launch.' :
+                mode === 'signup' ? 
+                  'Create an account to get started with Kairos and unlock all features.' :
+                  'Sign in to your account to access your dashboard and continue your journey.'}
+            </p>
+            <div className="hidden md:block">
+              <img 
+                src="/KAIROSBG.svg" 
+                alt="Kairos Illustration" 
+                className="max-w-full h-auto"
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Right side - Waitlist form */}
-        <div className="w-full md:w-3/5 flex justify-center md:justify-start lg:justify-end md:pr-0 lg:pr-8 xl:pr-16">
-          <div className="bg-white rounded-lg shadow-lg p-5 sm:p-8 w-full max-w-[360px] sm:max-w-[420px] md:max-w-[480px]">
+        {/* Right Column - Authentication Form */}
+        <div className="md:w-1/2 bg-white flex items-center justify-center p-8">
+          <div className="max-w-md w-full">
             {!isSubmitted ? (
               <>
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Join Waitlist</h2>
-                <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">Be the first to know about our updates</p>
-                
-                <div className="space-y-6">
-                  
-                  {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-md mb-4 shadow-sm">
-                      <div className="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                        <span className="font-medium">Failed to process your request</span>
-                      </div>
-                      <p className="mt-1 ml-7 text-sm">{error}</p>
-                    </div>
-                  )}
-                  
-                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Your name</label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter your name"
-                        disabled={isLoading}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter your email"
-                        disabled={isLoading}
-                      />
-                    </div>
-                    
-                    <button
-                      type="submit"
-                      className="w-full bg-orange-400 hover:bg-orange-500 text-white font-medium py-2 px-4 rounded-md shadow-sm disabled:opacity-70 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Processing...' : 'Join Waitlist'}
-                    </button>
-                  </form>
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    {mode === 'waitlist' ? 'Join Our Waitlist' : 
+                     mode === 'signup' ? 'Create Account' : 'Sign In'}
+                  </h2>
+                  <p className="text-gray-600">
+                    {mode === 'waitlist' ? 'Be the first to know about our updates' : 
+                     mode === 'signup' ? 'Fill in your details to get started' : 'Welcome back!'}
+                  </p>
                 </div>
 
-                <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-600">
-                    We'll email you when access is available
-                  </p>
+                {error && (
+                  <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                    {error}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="you@example.com"
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  {mode !== 'waitlist' && (
+                    <div>
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder={mode === 'signup' ? 'Create a password' : 'Enter your password'}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Processing...' : 
+                     mode === 'waitlist' ? 'Join Waitlist' : 
+                     mode === 'signup' ? 'Sign Up' : 'Sign In'}
+                  </button>
+                </form>
+
+                <div className="mt-6 text-center text-sm text-gray-600">
+                  {mode === 'signin' && (
+                    <>
+                      <p className="mb-2">
+                        Don't have an account?{' '}
+                        <button 
+                          onClick={() => setMode('signup')} 
+                          className="text-blue-600 hover:underline"
+                        >
+                          Sign up
+                        </button>
+                      </p>
+                      <p>
+                        Not ready to sign up?{' '}
+                        <button 
+                          onClick={() => setMode('waitlist')} 
+                          className="text-blue-600 hover:underline"
+                        >
+                          Join waitlist
+                        </button>
+                      </p>
+                    </>
+                  )}
+                  {mode === 'signup' && (
+                    <>
+                      <p className="mb-2">
+                        Already have an account?{' '}
+                        <button 
+                          onClick={() => setMode('signin')} 
+                          className="text-blue-600 hover:underline"
+                        >
+                          Sign in
+                        </button>
+                      </p>
+                      <p>
+                        Not ready to sign up?{' '}
+                        <button 
+                          onClick={() => setMode('waitlist')} 
+                          className="text-blue-600 hover:underline"
+                        >
+                          Join waitlist
+                        </button>
+                      </p>
+                    </>
+                  )}
+                  {mode === 'waitlist' && (
+                    <p>
+                      Already have an account?{' '}
+                      <button 
+                        onClick={() => setMode('signin')} 
+                        className="text-blue-600 hover:underline"
+                      >
+                        Sign in
+                      </button>
+                    </p>
+                  )}
                 </div>
               </>
             ) : (
-              <div className="text-center py-6 sm:py-10">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 sm:h-12 w-10 sm:w-12 mx-auto text-green-500 mb-3 sm:mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                   </svg>
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Thank You!</h3>
-                  <p className="text-gray-600 text-sm sm:text-base">You've been added to our waitlist. We'll email you when access is available.</p>
                 </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Thank You!</h3>
+                {mode === 'waitlist' ? (
+                  <p className="text-gray-600 text-sm sm:text-base">You've been added to our waitlist. We'll email you when access is available.</p>
+                ) : (
+                  <p className="text-gray-600 text-sm sm:text-base">Please check your email to confirm your account. You'll be able to sign in after confirmation.</p>
+                )}
                 
                 <Link 
                   href="/" 
-                  className="text-blue-600 hover:text-blue-800 font-medium text-sm sm:text-base"
+                  className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium text-sm sm:text-base"
                 >
                   Return to Home
                 </Link>
@@ -214,7 +303,7 @@ function SignInContent() {
       </div>
     </main>
   );
-}
+};
 
 const SignInPage = () => {
   return (
