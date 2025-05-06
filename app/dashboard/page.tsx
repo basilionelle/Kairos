@@ -106,9 +106,9 @@ const DashboardContent = () => {
                     <p className="font-medium">{profile?.university || 'Not set'}</p>
                   </div>
                   <div className="pt-4">
-                    <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    <Link href="/profile" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
                       Edit Profile
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
