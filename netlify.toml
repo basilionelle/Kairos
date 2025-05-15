@@ -8,9 +8,9 @@
   # Force clean build with no cache
   NETLIFY_USE_YARN_CACHE = "false"
   NETLIFY_USE_NPM_CACHE = "false"
-  # Note: These are placeholder values. Replace with actual values in Netlify dashboard
-  NEXT_PUBLIC_SUPABASE_URL = "https://your-project-id.supabase.co"
-  NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-supabase-anon-key"
+  # Actual Supabase credentials
+  NEXT_PUBLIC_SUPABASE_URL = "https://mlewlfyzuzffxoifvugk.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sZXdsZnl6dXpmZnhvaWZ2dWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyODgyNzcsImV4cCI6MjA2Mjg2NDI3N30.A_r_Xb6OsiLitssmxP7se0rs18IA7cys-fAJzXCdUoc"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
