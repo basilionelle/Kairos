@@ -5,20 +5,9 @@
 [build.environment]
   NETLIFY_NEXT_PLUGIN_SKIP = "false"
   NODE_VERSION = "18"
-  # Disable dependency caching to prevent Prisma Client initialization errors
-  NPM_FLAGS = "--no-cache"
-  # Force Prisma to generate during build
-  PRISMA_GENERATE = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-[[plugins]]
-  package = "./netlify/plugins/prisma-fix"
-
 # Next.js handles its own routing, so we don't need the redirect to index.html
 # which is more appropriate for single-page applications
-
-# Add a post-install step to ensure Prisma generates properly
-[build.lifecycle]
-  onPostBuild = "npx prisma generate"
