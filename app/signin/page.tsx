@@ -240,12 +240,16 @@ const SignInContent = () => {
                     <>
                       <p className="mb-2">
                         Don't have an account?{' '}
-                        <button 
-                          onClick={() => setMode('signup')} 
-                          className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
-                        >
-                          Sign up
-                        </button>
+                        <span>
+                          <a href="/signup" className="text-blue-700 hover:text-blue-800 font-medium hover:underline">Sign up</a>
+                        </span>
+                        { //<button 
+                          //onClick={() => setMode('signup')} 
+                          //className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
+                        //>
+                          //</p>Sign up
+                        //</></button> 
+                        }
                       </p>
                       <p className="mb-2">
                         <button 
