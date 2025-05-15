@@ -461,6 +461,7 @@ function MarketplaceContent() {
       </div>
     </main>
   );
+}
 
 const MarketplacePage = () => {
   return (
