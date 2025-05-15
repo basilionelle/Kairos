@@ -1,12 +1,14 @@
 'use client';
 
 import { ClientWrapper } from '@/components/ClientWrapper';
-
+import { useSupabase } from '@/components/SupabaseProvider';
 import Link from 'next/link';
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 function SignUpContent() {
+  const router = useRouter();
+  const { supabase } = useSupabase();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -15,6 +17,7 @@ function SignUpContent() {
     confirmPassword: '',
   });
   const [error, setError] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -39,27 +42,41 @@ function SignUpContent() {
     setIsLoading(true);
     
     try {
-      // Send registration data to our API
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // Sign up with Supabase
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.name
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
       });
       
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Registration failed');
+      if (authError) {
+        throw new Error(authError.message || 'Registration failed');
       }
       
-      // Redirect to sign-in page after successful registration
-      signIn(undefined, { callbackUrl: '/signin' });
+      // Create profile entry in profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: authData.user?.id,
+            full_name: formData.name,
+            email: formData.email,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ]);
+      
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+      }
+      
+      // Show success message
+      setIsSubmitted(true);
     } catch (err: any) {
       setError(err.message || 'An error occurred during registration');
       setIsLoading(false);
@@ -98,91 +115,112 @@ function SignUpContent() {
         {/* Right side - Sign up form */}
         <div className="w-full md:w-3/5 flex justify-center md:justify-end pr-8 lg:pr-16">
           <div className="bg-white rounded-lg shadow-lg p-8 w-full sm:w-[480px]">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Create Account</h2>
-            
-            <div className="space-y-6">
-              
-              {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
-                  {error}
-                </div>
-              )}
-              
-              <form className="space-y-5" onSubmit={handleSubmit}>
-                <div>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    autoComplete="name"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
-                    placeholder="Full Name"
-                  />
-                </div>
+            {!isSubmitted ? (
+              <>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">Create Student Account</h2>
                 
-                <div>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
-                    placeholder="Email address"
-                  />
+                <div className="space-y-6">
+                  
+                  {error && (
+                    <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
+                      {error}
+                    </div>
+                  )}
+                  
+                  <form className="space-y-5" onSubmit={handleSubmit}>
+                    <div>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        autoComplete="name"
+                        required
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
+                        placeholder="Full Name"
+                      />
+                    </div>
+                    
+                    <div>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
+                        placeholder="Email address"
+                      />
+                    </div>
+
+                    <div>
+                      <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        autoComplete="new-password"
+                        required
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
+                        placeholder="Password"
+                      />
+                    </div>
+                    
+                    <div>
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        autoComplete="new-password"
+                        required
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
+                        placeholder="Confirm Password"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full bg-[#f7931a] hover:bg-[#e68619] text-white font-medium py-4 px-6 text-lg rounded-md transition-colors duration-200"
+                    >
+                      {isLoading ? 'Creating Account...' : 'Create Account'}
+                    </button>
+                  </form>
                 </div>
 
-                <div>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
-                    placeholder="Password"
-                  />
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-gray-600">
+                    Already have an account?{' '}
+                    <Link href="/signin" className="text-kairos-primary hover:underline">
+                      Sign in
+                    </Link>
+                  </p>
                 </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Thank You!</h3>
+                <p className="text-gray-600 text-sm sm:text-base mb-6">Please check your email to confirm your account. You'll be able to sign in after confirmation.</p>
                 
-                <div>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
-                    placeholder="Confirm Password"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-[#f7931a] hover:bg-[#e68619] text-white font-medium py-4 px-6 text-lg rounded-md transition-colors duration-200"
+                <Link 
+                  href="/signin" 
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition-colors"
                 >
-                  {isLoading ? 'Creating Account...' : 'Create Account'}
-                </button>
-              </form>
-            </div>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Already have an account?{' '}
-                <Link href="/signin" className="text-kairos-primary hover:underline">
-                  Sign in
+                  Go to Sign In
                 </Link>
-              </p>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

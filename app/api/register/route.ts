@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '../../../lib/prisma';
-import { hashPassword } from '../../../lib/auth';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 // Configure the route as dynamic to avoid static generation errors
 export const dynamic = 'force-dynamic';
@@ -18,37 +17,64 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
+    
+    // Initialize Supabase client
+    const supabase = createServerSupabaseClient();
+    
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    const { data: existingUser } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', email)
+      .maybeSingle();
+      
     if (existingUser) {
       return NextResponse.json(
         { error: 'User with this email already exists' },
         { status: 400 }
       );
     }
-
-    // Hash password
-    const hashedPassword = await hashPassword(password);
-
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-      },
+    
+    // Create user with Supabase Auth
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name
+        },
+        emailRedirectTo: `${request.nextUrl.origin}/auth/callback`,
+      }
     });
-
-    // Return user without password
+    
+    if (error) {
+      throw error;
+    }
+    
+    // Create profile entry
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: data.user.id,
+            full_name: name,
+            email: email,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ]);
+        
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+      }
+    }
+    
+    // Return success response
     return NextResponse.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
+      id: data.user?.id,
+      email: data.user?.email,
+      name: name
     });
   } catch (error) {
     console.error('Registration error:', error);

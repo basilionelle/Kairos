@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import prisma from '../../../../lib/prisma';
-import { hashPassword, comparePassword } from '../../../../lib/auth';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 // Configure the route as dynamic to avoid static generation errors
 export const dynamic = 'force-dynamic';
@@ -10,29 +8,28 @@ export const runtime = 'nodejs';
 // Get user profile
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    // Initialize Supabase client
+    const supabase = createServerSupabaseClient();
     
-    if (!session || !session.user?.email) {
+    // Get session
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    // Get user profile from profiles table
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
     
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (error || !profile) {
+      return NextResponse.json({ error: 'User profile not found' }, { status: 404 });
     }
     
-    return NextResponse.json(user);
+    return NextResponse.json(profile);
   } catch (error) {
     console.error('Profile error:', error);
     return NextResponse.json(
@@ -45,61 +42,59 @@ export async function GET(request: NextRequest) {
 // Update user profile
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    // Initialize Supabase client
+    const supabase = createServerSupabaseClient();
     
-    if (!session || !session.user?.email) {
+    // Get session
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
     const body = await request.json();
-    const { name, image, currentPassword, newPassword } = body;
+    const { full_name, university, major, graduation_year, bio, avatar_url, currentPassword, newPassword } = body;
     
-    // Get the current user
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
+    // Prepare update data for profile
+    const updateData: any = {
+      updated_at: new Date().toISOString()
+    };
     
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-    
-    // Prepare update data
-    const updateData: any = {};
-    
-    if (name) updateData.name = name;
-    if (image) updateData.image = image;
+    if (full_name) updateData.full_name = full_name;
+    if (university) updateData.university = university;
+    if (major) updateData.major = major;
+    if (graduation_year) updateData.graduation_year = graduation_year;
+    if (bio) updateData.bio = bio;
+    if (avatar_url) updateData.avatar_url = avatar_url;
     
     // If password change is requested
     if (currentPassword && newPassword) {
-      // Verify current password
-      const passwordValid = await comparePassword(currentPassword, user.password || '');
+      // Update password with Supabase Auth
+      const { error: passwordError } = await supabase.auth.updateUser({
+        password: newPassword
+      });
       
-      if (!passwordValid) {
+      if (passwordError) {
         return NextResponse.json(
-          { error: 'Current password is incorrect' },
+          { error: passwordError.message },
           { status: 400 }
         );
       }
-      
-      // Hash new password
-      updateData.password = await hashPassword(newPassword);
     }
     
-    // Update user
-    const updatedUser = await prisma.user.update({
-      where: { email: session.user.email },
-      data: updateData,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    // Update user profile
+    const { data: updatedProfile, error: profileError } = await supabase
+      .from('profiles')
+      .update(updateData)
+      .eq('id', session.user.id)
+      .select('*')
+      .single();
     
-    return NextResponse.json(updatedUser);
+    if (profileError) {
+      throw profileError;
+    }
+    
+    return NextResponse.json(updatedProfile);
   } catch (error) {
     console.error('Profile update error:', error);
     return NextResponse.json(
