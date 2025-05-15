@@ -5,6 +5,7 @@ import { useSupabase } from '@/components/SupabaseProvider';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 function SignUpContent() {
   const router = useRouter();
@@ -87,48 +88,63 @@ function SignUpContent() {
     <main 
       className="relative min-h-screen overflow-hidden flex flex-col"
       style={{
-        backgroundImage: 'url(/images/KAIROSBG.svg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundColor: '#4362d5'
+        background: '#0a2463',
       }}
     >
-      {/* Top navigation */}
-      <div className="w-full py-6 px-6 md:px-10 flex justify-between items-center">
-        <Link href="/" className="text-white text-4xl font-bold">Kairos</Link>
-        <Link 
-          href="/signin" 
-          className="bg-white text-kairos-primary px-4 py-1.5 rounded-full text-sm font-medium hover:bg-gray-50 transition-all shadow-sm"
+      <div className="flex-1 flex flex-col md:flex-row">
+        {/* Left Column - Blue Background with Logo */}
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="md:w-1/2 bg-blue-900 flex flex-col items-center justify-center p-8 md:p-12 text-white"
         >
-          Sign in
-        </Link>
-      </div>
+          <div className="max-w-md w-full">
+            <Link href="/" className="inline-block mb-8">
+              <h1 className="text-4xl md:text-5xl font-bold text-white">Kairos</h1>
+            </Link>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">Welcome to Kairos</h2>
+            <p className="text-lg md:text-xl opacity-90 mb-8">
+              Create an account to get started with Kairos and access your personalized student dashboard.
+            </p>
+            <div className="hidden md:block">
+              <img 
+                src="/KAIROSBG.svg" 
+                alt="Kairos Illustration" 
+                className="max-w-full h-auto"
+              />
+            </div>
+          </div>
+        </motion.div>
 
-      {/* Main content */}
-      <div className="flex flex-col md:flex-row flex-1 items-center justify-center gap-y-12 md:gap-x-16 px-6 md:px-10 py-10 max-w-6xl mx-auto">
-        {/* Left side - Kairos logo */}
-        <div className="flex items-center justify-center md:justify-end md:w-2/5">
-          <h1 className="text-white text-6xl lg:text-7xl font-bold">Kairos</h1>
-        </div>
-
-        {/* Right side - Sign up form */}
-        <div className="w-full md:w-3/5 flex justify-center md:justify-end pr-8 lg:pr-16">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full sm:w-[480px]">
+        {/* Right Column - Sign Up Form */}
+        <motion.div 
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="md:w-1/2 bg-white flex items-center justify-center p-8 md:p-12"
+        >
+          <div className="max-w-md w-full">
             {!isSubmitted ? (
               <>
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Create Student Account</h2>
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Student Account</h2>
+                  <p className="text-gray-600">Fill in your details to get started</p>
+                </div>
                 
-                <div className="space-y-6">
+                <div className="space-y-4">
                   
                   {error && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                       {error}
                     </div>
                   )}
                   
-                  <form className="space-y-5" onSubmit={handleSubmit}>
+                  <form className="space-y-4" onSubmit={handleSubmit}>
                     <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                        Full Name
+                      </label>
                       <input
                         id="name"
                         name="name"
@@ -137,12 +153,15 @@ function SignUpContent() {
                         required
                         value={formData.name}
                         onChange={handleChange}
-                        className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
-                        placeholder="Full Name"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
+                        placeholder="Enter your full name"
                       />
                     </div>
                     
                     <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                        Email
+                      </label>
                       <input
                         id="email"
                         name="email"
@@ -151,12 +170,15 @@ function SignUpContent() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
-                        placeholder="Email address"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
+                        placeholder="you@example.com"
                       />
                     </div>
 
                     <div>
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                        Password
+                      </label>
                       <input
                         id="password"
                         name="password"
@@ -165,12 +187,15 @@ function SignUpContent() {
                         required
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
-                        placeholder="Password"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
+                        placeholder="Create a password"
                       />
                     </div>
                     
                     <div>
+                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                        Confirm Password
+                      </label>
                       <input
                         id="confirmPassword"
                         name="confirmPassword"
@@ -179,50 +204,57 @@ function SignUpContent() {
                         required
                         value={formData.confirmPassword}
                         onChange={handleChange}
-                        className="w-full px-6 py-4 text-lg rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-kairos-primary focus:border-transparent"
-                        placeholder="Confirm Password"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
+                        placeholder="Confirm your password"
                       />
                     </div>
 
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-[#f7931a] hover:bg-[#e68619] text-white font-medium py-4 px-6 text-lg rounded-md transition-colors duration-200"
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                     >
                       {isLoading ? 'Creating Account...' : 'Create Account'}
-                    </button>
+                    </motion.button>
                   </form>
                 </div>
 
-                <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-600">
+                <div className="mt-6 text-center text-sm text-gray-600">
+                  <p className="mb-2">
                     Already have an account?{' '}
-                    <Link href="/signin" className="text-kairos-primary hover:underline">
+                    <Link href="/signin" className="text-blue-700 hover:text-blue-800 font-medium hover:underline">
                       Sign in
                     </Link>
                   </p>
                 </div>
               </>
             ) : (
-              <div className="text-center py-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-center"
+              >
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
                   <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Thank You!</h3>
-                <p className="text-gray-600 text-sm sm:text-base mb-6">Please check your email to confirm your account. You'll be able to sign in after confirmation.</p>
+                <p className="text-gray-600 text-sm sm:text-base">Please check your email to confirm your account. You'll be able to sign in after confirmation.</p>
                 
                 <Link 
                   href="/signin" 
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition-colors"
+                  className="mt-4 inline-block text-blue-700 hover:text-blue-800 font-medium hover:underline"
                 >
-                  Go to Sign In
+                  Return to Sign In
                 </Link>
-              </div>
+              </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </main>
   );
