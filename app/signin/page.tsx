@@ -16,7 +16,7 @@ const SignInContent = () => {
     password: ''
   });
   const [error, setError] = useState('');
-  const [mode, setMode] = useState<'signin' | 'signup' | 'waitlist'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,27 +42,7 @@ const SignInContent = () => {
     setIsLoading(true);
     
     try {
-      if (mode === 'waitlist') {
-        // Submit to waitlist API
-        const response = await fetch('/api/waitlist', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            name: formData.email.split('@')[0] // Use part of email as name
-          }),
-          cache: 'no-store',
-        });
-        
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Failed to join waitlist');
-        }
-        
-        setIsSubmitted(true);
-      } else if (mode === 'signin') {
+      if (mode === 'signin') {
         // Sign in with Supabase
         if (!formData.password) {
           setError('Password is required');
@@ -134,11 +114,9 @@ const SignInContent = () => {
             </Link>
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Welcome to Kairos</h2>
             <p className="text-lg md:text-xl opacity-90 mb-8">
-              {mode === 'waitlist' ? 
-                'Join our waitlist to get early access to our platform and be the first to know when we launch.' :
-                mode === 'signup' ? 
-                  'Create an account to get started with Kairos and unlock all features.' :
-                  'Sign in to your account to access your dashboard and continue your journey.'}
+              {mode === 'signup' ? 
+                'Create an account to get started with Kairos and access your personalized student dashboard.' :
+                'Sign in to your account to access your personalized student dashboard and continue your journey.'}
             </p>
             <div className="hidden md:block">
               <img 
@@ -157,12 +135,10 @@ const SignInContent = () => {
               <>
                 <div className="text-center mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    {mode === 'waitlist' ? 'Join Our Waitlist' : 
-                     mode === 'signup' ? 'Create Account' : 'Sign In'}
+                    {mode === 'signup' ? 'Create Student Account' : 'Student Sign In'}
                   </h2>
                   <p className="text-gray-600">
-                    {mode === 'waitlist' ? 'Be the first to know about our updates' : 
-                     mode === 'signup' ? 'Fill in your details to get started' : 'Welcome back!'}
+                    {mode === 'signup' ? 'Fill in your details to get started' : 'Welcome back!'}
                   </p>
                 </div>
 
@@ -189,23 +165,21 @@ const SignInContent = () => {
                     />
                   </div>
 
-                  {mode !== 'waitlist' && (
-                    <div>
-                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                        Password
-                      </label>
-                      <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder={mode === 'signup' ? 'Create a password' : 'Enter your password'}
-                        disabled={isLoading}
-                      />
-                    </div>
-                  )}
+                  <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder={mode === 'signup' ? 'Create a password' : 'Enter your password'}
+                      disabled={isLoading}
+                    />
+                  </div>
 
                   <button
                     type="submit"
@@ -213,58 +187,24 @@ const SignInContent = () => {
                     disabled={isLoading}
                   >
                     {isLoading ? 'Processing...' : 
-                     mode === 'waitlist' ? 'Join Waitlist' : 
                      mode === 'signup' ? 'Sign Up' : 'Sign In'}
                   </button>
                 </form>
 
                 <div className="mt-6 text-center text-sm text-gray-600">
                   {mode === 'signin' && (
-                    <>
-                      <p className="mb-2">
-                        Don't have an account?{' '}
-                        <button 
-                          onClick={() => setMode('signup')} 
-                          className="text-blue-600 hover:underline"
-                        >
-                          Sign up
-                        </button>
-                      </p>
-                      <p>
-                        Not ready to sign up?{' '}
-                        <button 
-                          onClick={() => setMode('waitlist')} 
-                          className="text-blue-600 hover:underline"
-                        >
-                          Join waitlist
-                        </button>
-                      </p>
-                    </>
+                    <p className="mb-2">
+                      Don't have an account?{' '}
+                      <button 
+                        onClick={() => setMode('signup')} 
+                        className="text-blue-600 hover:underline"
+                      >
+                        Sign up
+                      </button>
+                    </p>
                   )}
                   {mode === 'signup' && (
-                    <>
-                      <p className="mb-2">
-                        Already have an account?{' '}
-                        <button 
-                          onClick={() => setMode('signin')} 
-                          className="text-blue-600 hover:underline"
-                        >
-                          Sign in
-                        </button>
-                      </p>
-                      <p>
-                        Not ready to sign up?{' '}
-                        <button 
-                          onClick={() => setMode('waitlist')} 
-                          className="text-blue-600 hover:underline"
-                        >
-                          Join waitlist
-                        </button>
-                      </p>
-                    </>
-                  )}
-                  {mode === 'waitlist' && (
-                    <p>
+                    <p className="mb-2">
                       Already have an account?{' '}
                       <button 
                         onClick={() => setMode('signin')} 
@@ -284,11 +224,7 @@ const SignInContent = () => {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Thank You!</h3>
-                {mode === 'waitlist' ? (
-                  <p className="text-gray-600 text-sm sm:text-base">You've been added to our waitlist. We'll email you when access is available.</p>
-                ) : (
-                  <p className="text-gray-600 text-sm sm:text-base">Please check your email to confirm your account. You'll be able to sign in after confirmation.</p>
-                )}
+                <p className="text-gray-600 text-sm sm:text-base">Please check your email to confirm your account. You'll be able to sign in after confirmation.</p>
                 
                 <Link 
                   href="/" 
