@@ -6,6 +6,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSupabase } from '@/components/SupabaseProvider';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the debug component to avoid SSR issues with environment variables
+const SupabaseDebug = dynamic(() => import('@/components/SupabaseDebug'), { ssr: false });
 
 const SignInContent = () => {
   const router = useRouter();
@@ -172,6 +176,14 @@ const SignInContent = () => {
                 {error && (
                   <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                     {error}
+                    
+                    {/* Show debug component if there's a fetch error */}
+                    {error.toLowerCase().includes('fetch') && (
+                      <div className="mt-4 pt-4 border-t border-red-300">
+                        <p className="font-medium mb-2">Connection Diagnostics:</p>
+                        <SupabaseDebug />
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -244,17 +256,6 @@ const SignInContent = () => {
                         </button>
                       </p>
                     </>
-                  )}
-                  {mode === 'signup' && (
-                    <p className="mb-2">
-                      Already have an account?{' '}
-                      <button 
-                        onClick={() => setMode('signin')} 
-                        className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
-                      >
-                        Sign in
-                      </button>
-                    </p>
                   )}
                   {mode === 'reset' && (
                     <p className="mb-2">
