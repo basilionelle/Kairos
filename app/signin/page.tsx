@@ -116,7 +116,7 @@ const SignInContent = () => {
     <main 
       className="relative min-h-screen overflow-hidden flex flex-col"
       style={{
-        background: 'linear-gradient(135deg, #0a2463 0%, #3e92cc 100%)',
+        background: '#0a2463',
       }}
     >
       <div className="flex-1 flex flex-col md:flex-row">
@@ -125,11 +125,11 @@ const SignInContent = () => {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="md:w-1/2 bg-blue-900 flex flex-col items-center justify-center p-8 text-white"
+          className="md:w-1/2 bg-blue-900 flex flex-col items-center justify-center p-8 md:p-12 text-white"
         >
           <div className="max-w-md w-full">
             <Link href="/" className="inline-block mb-8">
-              <h1 className="text-4xl font-bold text-white">Kairos</h1>
+              <h1 className="text-4xl md:text-5xl font-bold text-white">Kairos</h1>
             </Link>
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Welcome to Kairos</h2>
             <p className="text-lg md:text-xl opacity-90 mb-8">
@@ -154,7 +154,7 @@ const SignInContent = () => {
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="md:w-1/2 bg-white flex items-center justify-center p-8"
+          className="md:w-1/2 bg-white flex items-center justify-center p-8 md:p-12"
         >
           <div className="max-w-md w-full">
             {!isSubmitted && !resetEmailSent ? (
@@ -177,7 +177,7 @@ const SignInContent = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                       Email
                     </label>
                     <input
@@ -186,7 +186,7 @@ const SignInContent = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
                       placeholder="you@example.com"
                       disabled={isLoading}
                     />
@@ -194,7 +194,7 @@ const SignInContent = () => {
 
                   {mode !== 'reset' && (
                     <div>
-                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                         Password
                       </label>
                       <input
@@ -203,7 +203,7 @@ const SignInContent = () => {
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 transition duration-200"
                         placeholder={mode === 'signup' ? 'Create a password' : 'Enter your password'}
                         disabled={isLoading}
                       />
@@ -214,7 +214,7 @@ const SignInContent = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     type="submit"
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Processing...' : 
@@ -230,7 +230,7 @@ const SignInContent = () => {
                         Don't have an account?{' '}
                         <button 
                           onClick={() => setMode('signup')} 
-                          className="text-blue-600 hover:underline"
+                          className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
                         >
                           Sign up
                         </button>
@@ -238,7 +238,7 @@ const SignInContent = () => {
                       <p className="mb-2">
                         <button 
                           onClick={() => setMode('reset')} 
-                          className="text-blue-600 hover:underline"
+                          className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
                         >
                           Forgot your password?
                         </button>
@@ -250,7 +250,7 @@ const SignInContent = () => {
                       Already have an account?{' '}
                       <button 
                         onClick={() => setMode('signin')} 
-                        className="text-blue-600 hover:underline"
+                        className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
                       >
                         Sign in
                       </button>
@@ -261,7 +261,7 @@ const SignInContent = () => {
                       Remember your password?{' '}
                       <button 
                         onClick={() => setMode('signin')} 
-                        className="text-blue-600 hover:underline"
+                        className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
                       >
                         Back to sign in
                       </button>
