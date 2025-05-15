@@ -2,9 +2,10 @@
 
 import { ClientWrapper } from '@/components/ClientWrapper';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSupabase } from '@/components/SupabaseProvider';
+import { motion } from 'framer-motion';
 
 const SignInContent = () => {
   const router = useRouter();
@@ -16,7 +17,8 @@ const SignInContent = () => {
     password: ''
   });
   const [error, setError] = useState('');
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'reset'>('signin');
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -89,6 +91,18 @@ const SignInContent = () => {
         
         // Show confirmation message
         setIsSubmitted(true);
+      } else if (mode === 'reset') {
+        // Password reset with Supabase
+        const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+          redirectTo: `${window.location.origin}/auth/callback?reset=true`,
+        });
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+        
+        // Show confirmation message
+        setResetEmailSent(true);
       }
     } catch (err: any) {
       console.error('Authentication error:', err);
@@ -107,7 +121,12 @@ const SignInContent = () => {
     >
       <div className="flex-1 flex flex-col md:flex-row">
         {/* Left Column - Blue Background with Logo */}
-        <div className="md:w-1/2 bg-blue-900 flex flex-col items-center justify-center p-8 text-white">
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="md:w-1/2 bg-blue-900 flex flex-col items-center justify-center p-8 text-white"
+        >
           <div className="max-w-md w-full">
             <Link href="/" className="inline-block mb-8">
               <h1 className="text-4xl font-bold text-white">Kairos</h1>
@@ -116,6 +135,8 @@ const SignInContent = () => {
             <p className="text-lg md:text-xl opacity-90 mb-8">
               {mode === 'signup' ? 
                 'Create an account to get started with Kairos and access your personalized student dashboard.' :
+                mode === 'reset' ? 
+                'Reset your password to regain access to your account.' :
                 'Sign in to your account to access your personalized student dashboard and continue your journey.'}
             </p>
             <div className="hidden md:block">
@@ -126,19 +147,25 @@ const SignInContent = () => {
               />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Right Column - Authentication Form */}
-        <div className="md:w-1/2 bg-white flex items-center justify-center p-8">
+        <motion.div 
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="md:w-1/2 bg-white flex items-center justify-center p-8"
+        >
           <div className="max-w-md w-full">
-            {!isSubmitted ? (
+            {!isSubmitted && !resetEmailSent ? (
               <>
                 <div className="text-center mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    {mode === 'signup' ? 'Create Student Account' : 'Student Sign In'}
+                    {mode === 'signup' ? 'Create Student Account' : mode === 'reset' ? 'Reset Password' : 'Student Sign In'}
                   </h2>
                   <p className="text-gray-600">
-                    {mode === 'signup' ? 'Fill in your details to get started' : 'Welcome back!'}
+                    {mode === 'signup' ? 'Fill in your details to get started' : 
+                     mode === 'reset' ? 'Enter your email to reset your password' : 'Welcome back!'}
                   </p>
                 </div>
 
@@ -165,43 +192,58 @@ const SignInContent = () => {
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder={mode === 'signup' ? 'Create a password' : 'Enter your password'}
-                      disabled={isLoading}
-                    />
-                  </div>
+                  {mode !== 'reset' && (
+                    <div>
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder={mode === 'signup' ? 'Create a password' : 'Enter your password'}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  )}
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     type="submit"
                     className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Processing...' : 
-                     mode === 'signup' ? 'Sign Up' : 'Sign In'}
-                  </button>
+                     mode === 'signup' ? 'Sign Up' : 
+                     mode === 'reset' ? 'Send Reset Link' : 'Sign In'}
+                  </motion.button>
                 </form>
 
                 <div className="mt-6 text-center text-sm text-gray-600">
                   {mode === 'signin' && (
-                    <p className="mb-2">
-                      Don't have an account?{' '}
-                      <button 
-                        onClick={() => setMode('signup')} 
-                        className="text-blue-600 hover:underline"
-                      >
-                        Sign up
-                      </button>
-                    </p>
+                    <>
+                      <p className="mb-2">
+                        Don't have an account?{' '}
+                        <button 
+                          onClick={() => setMode('signup')} 
+                          className="text-blue-600 hover:underline"
+                        >
+                          Sign up
+                        </button>
+                      </p>
+                      <p className="mb-2">
+                        <button 
+                          onClick={() => setMode('reset')} 
+                          className="text-blue-600 hover:underline"
+                        >
+                          Forgot your password?
+                        </button>
+                      </p>
+                    </>
                   )}
                   {mode === 'signup' && (
                     <p className="mb-2">
@@ -214,10 +256,51 @@ const SignInContent = () => {
                       </button>
                     </p>
                   )}
+                  {mode === 'reset' && (
+                    <p className="mb-2">
+                      Remember your password?{' '}
+                      <button 
+                        onClick={() => setMode('signin')} 
+                        className="text-blue-600 hover:underline"
+                      >
+                        Back to sign in
+                      </button>
+                    </p>
+                  )}
                 </div>
               </>
+            ) : resetEmailSent ? (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-center"
+              >
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Password Reset Email Sent</h3>
+                <p className="text-gray-600 text-sm sm:text-base">Please check your email for a link to reset your password. If you don't see it, check your spam folder.</p>
+                
+                <button 
+                  onClick={() => {
+                    setResetEmailSent(false);
+                    setMode('signin');
+                  }}
+                  className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium text-sm sm:text-base"
+                >
+                  Return to Sign In
+                </button>
+              </motion.div>
             ) : (
-              <div className="text-center">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-center"
+              >
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
                   <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
@@ -232,10 +315,10 @@ const SignInContent = () => {
                 >
                   Return to Home
                 </Link>
-              </div>
+              </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </main>
   );
