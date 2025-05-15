@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSupabase } from '@/components/SupabaseProvider';
 import { ClientWrapper } from '@/components/ClientWrapper';
+import AuthStatus from '@/components/AuthStatus';
 
 const DashboardContent = () => {
   const router = useRouter();
@@ -62,24 +63,27 @@ const DashboardContent = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-blue-600">
-            Kairos
-          </Link>
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-700">
-              {profile?.full_name || user?.email}
-            </span>
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <h1 className="text-3xl font-bold text-gray-900">Student Dashboard</h1>
             <button
               onClick={handleSignOut}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
             >
               Sign Out
             </button>
           </div>
         </div>
       </header>
+      
+      {/* Authentication Status Component */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-4">Authentication Verification</h2>
+          <AuthStatus />
+        </div>
+      </div>
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
