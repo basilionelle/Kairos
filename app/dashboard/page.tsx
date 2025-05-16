@@ -132,6 +132,9 @@ const DashboardContent = () => {
                   <Link href="/marketplace" className="block px-4 py-2 bg-white/20 hover:bg-white/30 rounded-md transition-colors">
                     Browse Marketplace
                   </Link>
+                  <Link href="/marketplace-upload" className="block px-4 py-2 bg-white/20 hover:bg-white/30 rounded-md transition-colors">
+                    Upload Tool
+                  </Link>
                   <Link href="/analytics" className="block px-4 py-2 bg-white/20 hover:bg-white/30 rounded-md transition-colors">
                     View Analytics
                   </Link>

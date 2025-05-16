@@ -79,6 +79,7 @@ function SignUpContent() {
       // Show success message
       setIsSubmitted(true);
     } catch (err: any) {
+      console.log(err)
       setError(err.message || 'An error occurred during registration');
       setIsLoading(false);
     }
