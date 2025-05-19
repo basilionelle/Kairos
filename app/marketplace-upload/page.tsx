@@ -3,12 +3,16 @@
 import { ClientWrapper } from '@/components/ClientWrapper';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSupabase } from '@/components/SupabaseProvider';
 import { useRouter } from 'next/navigation';
 
 function UploadContent() {
   const router = useRouter();
+  const { supabase, user, loading } = useSupabase();
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -17,6 +21,37 @@ function UploadContent() {
     icon: null,
   });
   const [error, setError] = useState('');
+
+  useEffect(() => {
+      const checkSession = async () => {
+        if (!loading && !user) {
+          // Redirect to sign in if no user
+          router.push('/signin');
+        } 
+        else if (user) {
+          // Fetch user profile
+          try {
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', user.id)
+              .single();
+            
+            if (error) {
+              console.error('Error fetching profile:', error);
+            } else {
+              setProfile(data);
+            }
+          } catch (error) {
+            console.error('Error fetching profile:', error);
+          } finally {
+            setLoadingProfile(false);
+          }
+        }
+      };
+  
+      checkSession();
+    }, [user, loading, router, supabase]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, type, value, files } = e.target;
