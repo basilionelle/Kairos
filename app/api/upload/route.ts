@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServerSupabaseClient();
 
-    const fileExt = icon.name.split('.').pop();
+    const fileExt = icon instanceof File? icon.name.split('.').pop() : "jpg";
+
     const fileName = `${Date.now()}.${fileExt}`
     const filePath = `public/${fileName}`
 
