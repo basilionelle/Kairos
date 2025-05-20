@@ -53,7 +53,7 @@ function UploadContent() {
       checkSession();
     }, [user, loading, router, supabase]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<any>) => {
     const { name, type, value, files } = e.target;
 
     setFormData(prev => ({
