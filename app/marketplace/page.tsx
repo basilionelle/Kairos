@@ -131,6 +131,7 @@ function MarketplaceContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showContactPopup, setShowContactPopup] = useState(false);
   
   // Handle scroll for sticky category bar
   useEffect(() => {
@@ -259,6 +260,12 @@ function MarketplaceContent() {
         </Link>
         <div className="flex items-center space-x-4">
           <ThemeToggle />
+          <button 
+            onClick={() => setShowContactPopup(true)}
+            className="bg-blue-500 text-white px-4 py-1.5 rounded-full text-sm font-medium hover:bg-blue-600 transition-all shadow-sm"
+          >
+            Contact Us
+          </button>
           <Link 
             href="/signin" 
             className="bg-white text-kairos-primary dark:text-kairos-dark px-4 py-1.5 rounded-full text-sm font-medium hover:bg-opacity-95 transition-all shadow-sm"
@@ -267,6 +274,39 @@ function MarketplaceContent() {
           </Link>
         </div>
       </header>
+
+      {/* Contact Popup */}
+      {showContactPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
+            <button 
+              onClick={() => setShowContactPopup(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Contact Us</h3>
+            <div className="space-y-3">
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span className="text-gray-700 dark:text-gray-300">Email: </span>
+                <a href="mailto:moodevelopers@gmail.com" className="ml-2 text-blue-600 dark:text-blue-400 hover:underline">moodevelopers@gmail.com</a>
+              </div>
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10l.66 1.6L9.1 8.66 15 14l6.1-5.34.66 1.6-6.76 5.92L9.1 10.34 3 15.92V10z" />
+                </svg>
+                <span className="text-gray-700 dark:text-gray-300">Instagram: </span>
+                <a href="https://instagram.com/kairos__ph" target="_blank" rel="noopener noreferrer" className="ml-2 text-pink-600 dark:text-pink-400 hover:underline">@kairos__ph</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 pb-16">
         {/* Categories Navigation - with sticky functionality */}
