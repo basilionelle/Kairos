@@ -565,6 +565,50 @@ function MarketplaceContent() {
               </motion.div>
             )}
             
+            {/* TutorPH App Card - Hardcoded */}
+            {(activeCategory === 'all' || activeCategory === 'study-aids') && (
+              <motion.div
+                className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl shadow-xl shadow-amber-200/40 hover:scale-[1.02] transition-all duration-300 overflow-hidden"
+                whileHover={{ y: -5 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+              <a href="https://tutorph.netlify.app/" target="_blank" rel="noopener noreferrer">
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="bg-amber-400 p-2 rounded-lg">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                    <div className="bg-amber-600/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
+                      Study Aids
+                    </div>
+                  </div>
+                  <h3 className="text-white text-lg font-semibold mb-1">TutorPH</h3>
+                  <p className="text-white/90 text-sm mb-3">Connect with qualified tutors across the Philippines for personalized learning in any subject. Improve your grades with expert guidance.</p>
+                  <div className="flex justify-between items-center">
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          className={`h-4 w-4 ${i < 5 ? 'text-yellow-300' : 'text-gray-300'}`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <span className="text-white/80 text-xs">Philippines</span>
+                  </div>
+                </div>
+              </a>
+              </motion.div>
+            )}
+            
             {/* Dynamically loaded apps */}
             {apps.map((app, index) => {
               // Get a random style for this card
