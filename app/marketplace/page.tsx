@@ -499,7 +499,7 @@ function MarketplaceContent() {
                     </div>
                   </div>
                   <h3 className="text-white text-lg font-semibold mb-1">Skippy</h3>
-                  <p className="text-white/90 text-sm mb-3">A time-saving app for college students to optimize their schedules, manage tasks, and improve productivity.</p>
+                  <p className="text-white/90 text-sm mb-3">Generate believable excuses for missing class in the Philippines. No logs. No traces. Just alibis.</p>
                   <div className="flex justify-between items-center">
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
