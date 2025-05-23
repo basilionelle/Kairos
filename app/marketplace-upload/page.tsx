@@ -22,37 +22,6 @@ function UploadContent() {
   });
   const [error, setError] = useState('');
 
-  useEffect(() => {
-      const checkSession = async () => {
-        if (!loading && !user) {
-          // Redirect to sign in if no user
-          router.push('/signin');
-        } 
-        else if (user) {
-          // Fetch user profile
-          try {
-            const { data, error } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', user.id)
-              .single();
-            
-            if (error) {
-              console.error('Error fetching profile:', error);
-            } else {
-              setProfile(data);
-            }
-          } catch (error) {
-            console.error('Error fetching profile:', error);
-          } finally {
-            setLoadingProfile(false);
-          }
-        }
-      };
-  
-      checkSession();
-    }, [user, loading, router, supabase]);
-
   const handleChange = (e: React.ChangeEvent<any>) => {
     const { name, type, value, files } = e.target;
 
@@ -65,6 +34,7 @@ function UploadContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
     
     // console.log(formData);
 

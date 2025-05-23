@@ -267,6 +267,12 @@ function MarketplaceContent() {
             Contact Us
           </button>
           <Link 
+            href="/marketplace-upload" 
+            className="bg-white text-kairos-primary dark:text-kairos-dark px-4 py-1.5 rounded-full text-sm font-medium hover:bg-opacity-95 transition-all shadow-sm"
+          >
+            Upload Tool
+          </Link>
+          <Link 
             href="/signin" 
             className="bg-white text-kairos-primary dark:text-kairos-dark px-4 py-1.5 rounded-full text-sm font-medium hover:bg-opacity-95 transition-all shadow-sm"
           >
