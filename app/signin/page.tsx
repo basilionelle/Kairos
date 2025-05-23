@@ -13,9 +13,11 @@ const SupabaseDebug = dynamic(() => import('@/components/SupabaseDebug'), { ssr:
 
 const SignInContent = () => {
   const router = useRouter();
-  const { supabase } = useSupabase();
+  const { supabase, user, loading } = useSupabase();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  // const [profile, setProfile] = useState<any>(null);
+  // const [loadingProfile, setLoadingProfile] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -23,6 +25,37 @@ const SignInContent = () => {
   const [error, setError] = useState('');
   const [mode, setMode] = useState<'signin' | 'signup' | 'reset'>('signin');
   const [resetEmailSent, setResetEmailSent] = useState(false);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      if (user && !loading) {
+        // Redirect to home if there is user
+        router.push('/');
+      } 
+      // else if (user) {
+      //   // Fetch user profile
+      //   try {
+      //     const { data, error } = await supabase
+      //       .from('profiles')
+      //       .select('*')
+      //       .eq('id', user.id)
+      //       .single();
+          
+      //     if (error) {
+      //       console.error('Error fetching profile:', error);
+      //     } else {
+      //       setProfile(data);
+      //     }
+      //   } catch (error) {
+      //     console.error('Error fetching profile:', error);
+      //   } finally {
+      //     setLoadingProfile(false);
+      //   }
+      // }
+    };
+
+    checkSession();
+  }, [user, loading, router, supabase]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

@@ -15,9 +15,9 @@ const DashboardContent = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      if (!loading && !user) {
+      if (!user && !loading) {
         // Redirect to sign in if no user
-        router.push('/signin');
+        router.push('/');
       } else if (user) {
         // Fetch user profile
         try {

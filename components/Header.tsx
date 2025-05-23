@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import  SignInButton  from '@/components/SignInButton';
 
 // Extend Window interface to include our custom properties
 declare global {
@@ -88,12 +89,7 @@ const Header = () => {
         >
           Upload Tool
         </Link>
-        <Link 
-          href="/signin" 
-          className="bg-white text-kairos-primary px-4 py-1.5 rounded-full text-sm font-medium hover:bg-opacity-95 transition-all shadow-sm ml-2"
-        >
-          Sign in
-        </Link>
+        <SignInButton></SignInButton>
       </div>
 
       {/* Mobile menu button */}

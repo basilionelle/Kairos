@@ -1,6 +1,7 @@
 'use client';
 
 import { ClientWrapper } from '@/components/ClientWrapper';
+import  SignInButton  from '@/components/SignInButton';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -272,12 +273,7 @@ function MarketplaceContent() {
           >
             Upload Tool
           </Link>
-          <Link 
-            href="/signin" 
-            className="bg-white text-kairos-primary dark:text-kairos-dark px-4 py-1.5 rounded-full text-sm font-medium hover:bg-opacity-95 transition-all shadow-sm"
-          >
-            Sign in
-          </Link>
+          <SignInButton></SignInButton>
         </div>
       </header>
 
