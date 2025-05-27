@@ -68,7 +68,7 @@ export default function SearchAndFilters({
   }, []);
 
   return (
-    <div className={`bg-white dark:bg-kairos-darkAccent rounded-lg shadow-md p-4 mb-4 ${
+    <div className={`bg-white/90 dark:bg-kairos-darkAccent/90 backdrop-blur-sm rounded-lg shadow-lg p-4 mb-4 border border-gray-100 dark:border-gray-700 ${
       isSticky && !isMobile ? 'sticky top-16 z-10' : ''
     }`}>
       {/* Search input */}

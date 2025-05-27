@@ -18,14 +18,14 @@ export default function AchievementPanel() {
   const [streak, setStreak] = useState(0);
   const [totalXP, setTotalXP] = useState(0);
 
-  // Mock achievements for demonstration
+  // Achievement definitions without unlocked status
   const mockAchievements: Achievement[] = [
     {
       id: 'first-wish',
       title: 'First Wish',
       description: 'Submit your first wish',
       icon: '🏆',
-      unlocked: true,
+      unlocked: false,
       color: 'bg-yellow-500'
     },
     {
@@ -33,7 +33,7 @@ export default function AchievementPanel() {
       title: 'Community Favorite',
       description: 'Get 100+ votes on a wish',
       icon: '❤️',
-      unlocked: true,
+      unlocked: false,
       color: 'bg-blue-500'
     },
     {
@@ -41,7 +41,7 @@ export default function AchievementPanel() {
       title: 'Problem Solver',
       description: 'Have a wish completed',
       icon: '🔧',
-      unlocked: true,
+      unlocked: false,
       color: 'bg-green-500'
     },
     {
@@ -63,8 +63,8 @@ export default function AchievementPanel() {
         // Simulate API request
         await new Promise(resolve => setTimeout(resolve, 800));
         setAchievements(mockAchievements);
-        setStreak(5); // Mock streak data
-        setTotalXP(830); // Mock XP data
+        setStreak(0); // Reset streak data
+        setTotalXP(0); // Reset XP data
       } catch (error) {
         console.error('Error fetching achievements:', error);
       } finally {
@@ -125,7 +125,7 @@ export default function AchievementPanel() {
   }
 
   return (
-    <div className="bg-white dark:bg-kairos-darkAccent rounded-lg shadow-lg p-4 sticky top-24">
+    <div className="bg-white/90 dark:bg-kairos-darkAccent/90 backdrop-blur-sm rounded-lg shadow-lg p-4 border border-gray-100 dark:border-gray-700 sticky top-24">
       <h2 className="text-xl font-bold text-kairos-primary dark:text-white mb-4">
         Achievements
       </h2>

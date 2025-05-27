@@ -85,7 +85,7 @@ export default function WishlistSubmission({ isMobile = false, onClose }: Wishli
   };
 
   return (
-    <div className={`bg-white dark:bg-kairos-darkAccent rounded-lg shadow-lg p-4 ${isMobile ? 'h-[calc(100vh-120px)]' : ''}`}>
+    <div className={`bg-white/90 dark:bg-kairos-darkAccent/90 backdrop-blur-sm rounded-lg shadow-lg p-4 border border-gray-100 dark:border-gray-700 ${isMobile ? 'h-[calc(100vh-120px)]' : ''}`}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-kairos-primary dark:text-white">Submit Your Wish</h2>
         {isMobile && onClose && (

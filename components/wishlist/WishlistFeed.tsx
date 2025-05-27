@@ -35,74 +35,8 @@ export default function WishlistFeed({
   const [error, setError] = useState<string | null>(null);
   const [votedWishes, setVotedWishes] = useState<Set<string>>(new Set());
 
-  // Mock data for demonstration
-  const mockWishes: Wish[] = [
-    {
-      id: '1',
-      title: 'Can someone build a scholarship finder for our university?',
-      category: 'study-aids',
-      authorName: 'Fays B.',
-      authorAvatar: '/avatars/user1.png',
-      votes: 185,
-      comments: 38,
-      createdAt: '2025-05-20T14:30:00Z',
-      badges: ['first-wish'],
-      buildThreshold: 100,
-      percentComplete: 100
-    },
-    {
-      id: '2',
-      title: 'An app that generates quiz questions based on lecture notes',
-      category: 'productivity',
-      authorName: 'Raheem',
-      authorAvatar: '/avatars/user2.png',
-      votes: 93,
-      comments: 12,
-      createdAt: '2025-05-21T10:15:00Z',
-      badges: ['problem-solver'],
-      buildThreshold: 100,
-      percentComplete: 93
-    },
-    {
-      id: '3',
-      title: 'A dorm room swap app for students looking to trade rooms',
-      category: 'campus-life',
-      authorName: 'Lydia T.',
-      authorAvatar: '/avatars/user3.png',
-      votes: 75,
-      comments: 24,
-      createdAt: '2025-05-22T09:45:00Z',
-      badges: ['first-wish'],
-      buildThreshold: 100,
-      percentComplete: 75
-    },
-    {
-      id: '4',
-      title: 'Create a shared calendar for study groups with reminders',
-      category: 'scheduling',
-      authorName: 'Marcus J.',
-      authorAvatar: '/avatars/user4.png',
-      votes: 62,
-      comments: 8,
-      createdAt: '2025-05-23T16:20:00Z',
-      badges: [],
-      buildThreshold: 100,
-      percentComplete: 62
-    },
-    {
-      id: '5',
-      title: 'Meditation app with guided sessions for exam stress',
-      category: 'wellness',
-      authorName: 'Sophia L.',
-      authorAvatar: '/avatars/user5.png',
-      votes: 41,
-      comments: 5,
-      createdAt: '2025-05-24T11:30:00Z',
-      badges: ['trend-spotter'],
-      buildThreshold: 100,
-      percentComplete: 41
-    }
-  ];
+  // Empty initial state - no mock data
+  const mockWishes: Wish[] = [];
 
   // Fetch wishes from API or use mock data
   useEffect(() => {
@@ -337,7 +271,7 @@ export default function WishlistFeed({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="bg-white dark:bg-kairos-darkAccent rounded-lg shadow-md overflow-hidden"
+            className="bg-white/90 dark:bg-kairos-darkAccent/90 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700"
           >
             <div className="p-4">
               <div className="flex items-start">

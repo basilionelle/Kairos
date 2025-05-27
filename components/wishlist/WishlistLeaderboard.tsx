@@ -17,54 +17,8 @@ export default function WishlistLeaderboard() {
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Mock data for demonstration
-  const mockUsers: LeaderboardUser[] = [
-    {
-      id: '1',
-      name: 'Fays B.',
-      avatar: '/avatars/user1.png',
-      points: 6250,
-      rank: 1,
-      tier: 'gold',
-      change: 0
-    },
-    {
-      id: '2',
-      name: 'Emma L.',
-      avatar: '/avatars/user2.png',
-      points: 4980,
-      rank: 2,
-      tier: 'silver',
-      change: -3
-    },
-    {
-      id: '3',
-      name: 'James R.',
-      avatar: '/avatars/user3.png',
-      points: 3780,
-      rank: 3,
-      tier: 'silver',
-      change: 38
-    },
-    {
-      id: '4',
-      name: 'Sofia C.',
-      avatar: '/avatars/user4.png',
-      points: 2530,
-      rank: 4,
-      tier: 'bronze',
-      change: -1
-    },
-    {
-      id: '5',
-      name: 'Raheem K.',
-      avatar: '/avatars/user5.png',
-      points: 1820,
-      rank: 5,
-      tier: 'bronze',
-      change: 2
-    }
-  ];
+  // Empty initial state - no mock data
+  const mockUsers: LeaderboardUser[] = [];
 
   // Fetch leaderboard data
   useEffect(() => {
@@ -161,7 +115,7 @@ export default function WishlistLeaderboard() {
   }
 
   return (
-    <div className="bg-white dark:bg-kairos-darkAccent rounded-lg shadow-lg p-4">
+    <div className="bg-white/90 dark:bg-kairos-darkAccent/90 backdrop-blur-sm rounded-lg shadow-lg p-4 border border-gray-100 dark:border-gray-700">
       <h2 className="text-xl font-bold text-kairos-primary dark:text-white mb-4">
         Community Leaderboard
       </h2>

@@ -19,7 +19,15 @@ export default function WishlistPage() {
 
   return (
     <ClientWrapper>
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-kairos-dark dark:to-kairos-dark">
+      <div 
+        className="min-h-screen relative overflow-hidden"
+        style={{
+          backgroundImage: theme === 'dark' ? 'url(/images/NIGHTKAIROS.svg)' : 'url(/images/DAYKAIROS.svg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col">
             <h1 className="text-3xl md:text-4xl font-bold text-kairos-primary dark:text-white mb-2">
