@@ -192,7 +192,7 @@ export default function WishlistFeed({
       const newVotedWishes = new Set(votedWishes);
       newVotedWishes.add(wishId);
       setVotedWishes(newVotedWishes);
-      localStorage.setItem('votedWishes', JSON.stringify([...newVotedWishes]));
+      localStorage.setItem('votedWishes', JSON.stringify(Array.from(newVotedWishes)));
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -214,7 +214,7 @@ export default function WishlistFeed({
       const revertVotedWishes = new Set(votedWishes);
       revertVotedWishes.delete(wishId);
       setVotedWishes(revertVotedWishes);
-      localStorage.setItem('votedWishes', JSON.stringify([...revertVotedWishes]));
+      localStorage.setItem('votedWishes', JSON.stringify(Array.from(revertVotedWishes)));
     }
   };
 
