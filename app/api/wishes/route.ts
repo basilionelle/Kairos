@@ -40,9 +40,6 @@ export async function POST(request: NextRequest) {
           category,
           description: body.description || '',
           mockup_link: body.mockupLink || '',
-          user_id: user?.id || 'anonymous',
-          author_name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Anonymous',
-          author_avatar: user?.user_metadata?.avatar_url || null,
         },
       ])
       .select();
