@@ -22,10 +22,6 @@ export async function POST(request: NextRequest) {
     // Get user information
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
     // Validate required fields
     const { title, category } = body;
     if (!title || !category) {
@@ -44,9 +40,9 @@ export async function POST(request: NextRequest) {
           category,
           description: body.description || '',
           mockup_link: body.mockupLink || '',
-          user_id: user.id,
-          author_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Anonymous',
-          author_avatar: user.user_metadata?.avatar_url || null,
+          user_id: user?.id || 'anonymous',
+          author_name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Anonymous',
+          author_avatar: user?.user_metadata?.avatar_url || null,
         },
       ])
       .select();
