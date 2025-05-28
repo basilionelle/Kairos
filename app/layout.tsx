@@ -3,6 +3,13 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
 import { GoogleAnalytics } from '../components/GoogleAnalytics';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the WishNotificationWrapper to avoid SSR issues
+const WishNotificationWrapper = dynamic(
+  () => import('../components/wishlist/WishNotificationWrapper'),
+  { ssr: false }
+);
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,6 +43,7 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased text-base`}>
         <Providers>
           {children}
+          <WishNotificationWrapper />
         </Providers>
       </body>
     </html>

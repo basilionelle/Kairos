@@ -40,6 +40,26 @@ export default function WishlistFeed({
   const mockWishes: Wish[] = [];
 
   // Fetch wishes from API and subscribe to real-time updates
+  // Check for highlighted wish from URL parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const highlightId = urlParams.get('highlight');
+    
+    if (highlightId) {
+      // Wait for wishes to load and DOM to update
+      setTimeout(() => {
+        const wishElement = document.getElementById(`wish-${highlightId}`);
+        if (wishElement) {
+          wishElement.scrollIntoView({ behavior: 'smooth' });
+          wishElement.classList.add('highlight-wish');
+          setTimeout(() => {
+            wishElement.classList.remove('highlight-wish');
+          }, 2000);
+        }
+      }, 1000);
+    }
+  }, []);
+  
   useEffect(() => {
     const fetchWishes = async () => {
       setLoading(true);
@@ -419,14 +439,14 @@ export default function WishlistFeed({
   return (
     <div className="mt-4 space-y-4">
       <AnimatePresence>
-        {wishes.map((wish) => (
+        {wishes.map((wish, index) => (
           <motion.div
+            id={`wish-${wish.id}`}
             key={wish.id}
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col h-full"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white/90 dark:bg-kairos-darkAccent/90 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700"
+            transition={{ delay: index * 0.05 }}
           >
             <div className="p-4">
               <div className="flex items-start">
