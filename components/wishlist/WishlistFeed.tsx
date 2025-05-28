@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase, subscribeToWishes, subscribeToWishVotes } from '@/lib/supabaseClient';
 
 interface Wish {
   id: string;
@@ -38,56 +39,77 @@ export default function WishlistFeed({
   // Empty initial state - no mock data
   const mockWishes: Wish[] = [];
 
-  // Fetch wishes from API or use mock data
+  // Fetch wishes from API and subscribe to real-time updates
   useEffect(() => {
     const fetchWishes = async () => {
       setLoading(true);
       setError(null);
       
       try {
-        // Simulate API request
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // Filter and sort wishes based on activeTab, searchQuery, and selectedCategory
-        let filteredWishes = [...mockWishes];
-        
-        // Filter by category
-        if (selectedCategory !== 'all') {
-          filteredWishes = filteredWishes.filter(wish => wish.category === selectedCategory);
-        }
-        
-        // Filter by search query
-        if (searchQuery) {
-          const query = searchQuery.toLowerCase();
-          filteredWishes = filteredWishes.filter(wish => 
-            wish.title.toLowerCase().includes(query) || 
-            wish.authorName.toLowerCase().includes(query)
-          );
-        }
-        
-        // Sort based on activeTab
+        // Determine sort parameter based on activeTab
+        let sortParam = '';
         switch (activeTab) {
           case 'top-week':
-            filteredWishes.sort((a, b) => b.votes - a.votes);
+            sortParam = 'votes';
             break;
           case 'trending':
-            // For demo, we'll just use a different sort, but this would use a trending algorithm
-            filteredWishes.sort((a, b) => {
-              const aScore = b.votes * 0.7 + b.comments * 0.3;
-              const bScore = a.votes * 0.7 + a.comments * 0.3;
-              return aScore - bScore;
-            });
+            sortParam = 'trending';
             break;
           case 'newest':
-            filteredWishes.sort((a, b) => 
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
+            sortParam = 'newest';
             break;
           default:
-            filteredWishes.sort((a, b) => b.votes - a.votes);
+            sortParam = 'votes';
         }
         
-        setWishes(filteredWishes);
+        // Build query URL with filters
+        let url = '/api/wishes';
+        const params = new URLSearchParams();
+        
+        if (selectedCategory !== 'all') {
+          params.append('category', selectedCategory);
+        }
+        
+        if (searchQuery) {
+          params.append('search', searchQuery);
+        }
+        
+        params.append('sort', sortParam);
+        
+        if (params.toString()) {
+          url += `?${params.toString()}`;
+        }
+        
+        // Fetch wishes from API
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch wishes');
+        }
+        
+        const data = await response.json();
+        
+        // Transform API data to match our Wish interface
+        const transformedWishes = data.map((wish: any) => ({
+          id: wish.id,
+          title: wish.title,
+          category: wish.category,
+          authorName: wish.author_name,
+          authorAvatar: wish.author_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(wish.author_name)}&background=random`,
+          votes: wish.votes,
+          comments: wish.comments || 0,
+          createdAt: wish.created_at,
+          badges: wish.badges || [],
+          buildThreshold: 100, // This could be dynamic based on category
+          percentComplete: Math.min(100, ((wish.votes / 100) * 100))
+        }));
+        
+        setWishes(transformedWishes);
       } catch (err) {
         console.error('Error fetching wishes:', err);
         setError('Failed to load wishes. Please try again later.');
@@ -97,6 +119,99 @@ export default function WishlistFeed({
     };
     
     fetchWishes();
+    
+    // Subscribe to real-time updates for wishes
+    const unsubscribeWishes = subscribeToWishes((payload) => {
+      const { eventType, new: newWish, old: oldWish } = payload;
+      
+      // Handle different event types
+      if (eventType === 'INSERT') {
+        // Add new wish to the list
+        setWishes((prevWishes) => {
+          // Transform the new wish to match our Wish interface
+          const transformedWish = {
+            id: newWish.id,
+            title: newWish.title,
+            category: newWish.category,
+            authorName: newWish.author_name,
+            authorAvatar: newWish.author_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(newWish.author_name)}&background=random`,
+            votes: newWish.votes,
+            comments: newWish.comments || 0,
+            createdAt: newWish.created_at,
+            badges: newWish.badges || [],
+            buildThreshold: 100,
+            percentComplete: Math.min(100, ((newWish.votes / 100) * 100))
+          };
+          
+          // Filter based on current filters
+          if (selectedCategory !== 'all' && transformedWish.category !== selectedCategory) {
+            return prevWishes;
+          }
+          
+          if (searchQuery && !transformedWish.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+            return prevWishes;
+          }
+          
+          // Add the new wish to the beginning of the list if sorting by newest
+          if (activeTab === 'newest') {
+            return [transformedWish, ...prevWishes];
+          }
+          
+          // Otherwise add it to the end and let the sorting handle it
+          return [...prevWishes, transformedWish];
+        });
+      } else if (eventType === 'UPDATE') {
+        // Update existing wish
+        setWishes((prevWishes) => 
+          prevWishes.map((wish) => 
+            wish.id === newWish.id
+              ? {
+                  ...wish,
+                  title: newWish.title,
+                  category: newWish.category,
+                  votes: newWish.votes,
+                  comments: newWish.comments || 0,
+                  badges: newWish.badges || [],
+                  percentComplete: Math.min(100, ((newWish.votes / 100) * 100))
+                }
+              : wish
+          )
+        );
+      } else if (eventType === 'DELETE') {
+        // Remove deleted wish
+        setWishes((prevWishes) => 
+          prevWishes.filter((wish) => wish.id !== oldWish.id)
+        );
+      }
+    });
+    
+    // Subscribe to real-time updates for wish votes
+    const unsubscribeVotes = subscribeToWishVotes((payload) => {
+      if (payload.eventType === 'INSERT') {
+        // Update vote count for the affected wish
+        const wishId = payload.new.wish_id;
+        
+        setWishes((prevWishes) => 
+          prevWishes.map((wish) => {
+            if (wish.id === wishId) {
+              const newVotes = wish.votes + 1;
+              return {
+                ...wish,
+                votes: newVotes,
+                percentComplete: Math.min(100, ((newVotes / wish.buildThreshold) * 100))
+              };
+            }
+            return wish;
+          })
+        );
+      }
+    });
+    
+    // Cleanup subscriptions when component unmounts
+    return () => {
+      unsubscribeWishes();
+      unsubscribeVotes();
+    };
   }, [activeTab, searchQuery, selectedCategory]);
 
   // Retrieve voted wishes from localStorage
@@ -113,6 +228,15 @@ export default function WishlistFeed({
     }
     
     try {
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // If not authenticated, redirect to sign in page
+        window.location.href = '/signin?redirect=/wishlist';
+        return;
+      }
+      
       // Optimistic update
       setWishes(prevWishes => 
         prevWishes.map(wish => 
@@ -128,10 +252,30 @@ export default function WishlistFeed({
       setVotedWishes(newVotedWishes);
       localStorage.setItem('votedWishes', JSON.stringify(Array.from(newVotedWishes)));
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Send vote to API
+      const response = await fetch('/api/wishes/vote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ wishId }),
+      });
       
-      // Success toast could be shown here
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to vote for wish');
+      }
+      
+      // Show success toast
+      const successToast = document.createElement('div');
+      successToast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50';
+      successToast.textContent = 'Vote recorded!';
+      document.body.appendChild(successToast);
+      
+      // Remove toast after 2 seconds
+      setTimeout(() => {
+        document.body.removeChild(successToast);
+      }, 2000);
     } catch (error) {
       console.error('Error voting for wish:', error);
       
@@ -149,6 +293,17 @@ export default function WishlistFeed({
       revertVotedWishes.delete(wishId);
       setVotedWishes(revertVotedWishes);
       localStorage.setItem('votedWishes', JSON.stringify(Array.from(revertVotedWishes)));
+      
+      // Show error toast
+      const errorToast = document.createElement('div');
+      errorToast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50';
+      errorToast.textContent = error instanceof Error ? error.message : 'Failed to vote for wish';
+      document.body.appendChild(errorToast);
+      
+      // Remove toast after 3 seconds
+      setTimeout(() => {
+        document.body.removeChild(errorToast);
+      }, 3000);
     }
   };
 

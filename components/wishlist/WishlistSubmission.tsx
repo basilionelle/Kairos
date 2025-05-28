@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { supabase } from '@/lib/supabaseClient';
 
 interface WishlistSubmissionProps {
   isMobile?: boolean;
@@ -51,8 +52,36 @@ export default function WishlistSubmission({ isMobile = false, onClose }: Wishli
     setIsSubmitting(true);
     
     try {
-      // Simulated API call - replace with actual implementation
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // If not authenticated, redirect to sign in page
+        window.location.href = '/signin?redirect=/wishlist';
+        return;
+      }
+      
+      // Prepare wish data
+      const wishData = {
+        title,
+        category,
+        description,
+        mockupLink
+      };
+      
+      // Send wish to API
+      const response = await fetch('/api/wishes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(wishData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit wish');
+      }
       
       // Reset form after successful submission
       setTitle('');
@@ -61,8 +90,16 @@ export default function WishlistSubmission({ isMobile = false, onClose }: Wishli
       setMockupLink('');
       setStep(1);
       
-      // Show success toast (implement toast notification system)
-      console.log('Wish submitted successfully!');
+      // Show success toast
+      const successToast = document.createElement('div');
+      successToast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50';
+      successToast.textContent = 'Wish submitted successfully!';
+      document.body.appendChild(successToast);
+      
+      // Remove toast after 3 seconds
+      setTimeout(() => {
+        document.body.removeChild(successToast);
+      }, 3000);
       
       // Close mobile form if on mobile
       if (isMobile && onClose) {
@@ -70,6 +107,17 @@ export default function WishlistSubmission({ isMobile = false, onClose }: Wishli
       }
     } catch (error) {
       console.error('Error submitting wish:', error);
+      
+      // Show error toast
+      const errorToast = document.createElement('div');
+      errorToast.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50';
+      errorToast.textContent = error instanceof Error ? error.message : 'Failed to submit wish';
+      document.body.appendChild(errorToast);
+      
+      // Remove toast after 3 seconds
+      setTimeout(() => {
+        document.body.removeChild(errorToast);
+      }, 3000);
     } finally {
       setIsSubmitting(false);
     }
