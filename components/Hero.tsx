@@ -65,12 +65,23 @@ const Hero = () => {
         
         <p className="text-lg sm:text-xl md:text-2xl mb-6 sm:mb-8 md:mb-10 text-white/85">Explore Kairos Today!</p>
         
-        <Link 
-          href="/marketplace" 
-          className="inline-block bg-orange-400 hover:bg-orange-500 text-white font-semibold px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg text-base sm:text-lg transition-all shadow-lg"
-        >
-          Explore Kairos
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Link 
+            href="/marketplace" 
+            className="inline-block bg-orange-400 hover:bg-orange-500 text-white font-semibold px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg text-base sm:text-lg transition-all shadow-lg"
+          >
+            Explore Kairos
+          </Link>
+          <Link 
+            href="/wishlist" 
+            className="inline-block bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-semibold px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg text-base sm:text-lg transition-all shadow-lg border border-white/30 flex items-center justify-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Submit a Wish
+          </Link>
+        </div>
       </div>
     </div>
   );
