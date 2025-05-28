@@ -52,15 +52,6 @@ export default function WishlistSubmission({ isMobile = false, onClose }: Wishli
     setIsSubmitting(true);
     
     try {
-      // Check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // If not authenticated, redirect to sign in page
-        window.location.href = '/signin?redirect=/wishlist';
-        return;
-      }
-      
       // Prepare wish data
       const wishData = {
         title,

@@ -18,12 +18,8 @@ export async function POST(request: NextRequest) {
     );
     const body = await request.json();
     
-    // Get user information
+    // Get user information if available
     const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     
     // Validate required fields
     const { wishId } = body;
@@ -34,26 +30,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Check if the user has already voted for this wish
-    const { data: existingVote, error: voteCheckError } = await supabase
-      .from('wish_votes')
-      .select('*')
-      .eq('wish_id', wishId)
-      .eq('user_id', user.id)
-      .single();
-    
-    if (voteCheckError && voteCheckError.code !== 'PGRST116') {
-      // PGRST116 means no rows returned, which is what we want
-      console.error('Error checking existing vote:', voteCheckError);
-      return NextResponse.json({ error: voteCheckError.message }, { status: 500 });
-    }
-    
-    if (existingVote) {
-      return NextResponse.json(
-        { error: 'You have already voted for this wish' },
-        { status: 400 }
-      );
-    }
+    // For anonymous voting, we'll use client-side tracking via localStorage
+    // The API won't check for duplicate votes - this is handled on the client side
+    // This simplifies the backend and allows for anonymous voting
     
     // Start a transaction to add the vote and update the wish vote count
     const { data: vote, error: voteError } = await supabase
@@ -61,7 +40,7 @@ export async function POST(request: NextRequest) {
       .insert([
         {
           wish_id: wishId,
-          user_id: user.id,
+          user_id: user?.id || 'anonymous-' + Date.now(), // Use timestamp for anonymous users
         },
       ])
       .select();

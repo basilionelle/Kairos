@@ -248,14 +248,6 @@ export default function WishlistFeed({
     }
     
     try {
-      // Check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // If not authenticated, redirect to sign in page
-        window.location.href = '/signin?redirect=/wishlist';
-        return;
-      }
       
       // Optimistic update
       setWishes(prevWishes => 
