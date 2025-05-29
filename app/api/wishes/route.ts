@@ -40,6 +40,9 @@ export async function POST(request: NextRequest) {
           category,
           description: body.description || '',
           mockup_link: body.mockupLink || '',
+          user_id: user?.id || '00000000-0000-0000-0000-000000000000', // Default anonymous user ID
+          author_name: user?.user_metadata?.full_name || 'Anonymous Wisher',
+          author_avatar: user?.user_metadata?.avatar_url || null,
         },
       ])
       .select();
