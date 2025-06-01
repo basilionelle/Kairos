@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import { useSupabase } from '@/components/SupabaseProvider'
+import type { Session } from '@supabase/supabase-js'
 import  SignInButton  from '@/components/SignInButton';
 
 // Extend Window interface to include our custom properties
@@ -12,10 +14,71 @@ declare global {
   }
 }
 
+function SignInMobile({isLoggedIn, setMobileMenuOpen}) {
+  if (isLoggedIn) {
+    return <Link 
+              href="/dashboard" 
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Dashboard
+            </Link>;
+  }
+  return <Link 
+              href="/signin" 
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Sign in
+            </Link>;
+}
+
+function MarketplaceLink({isLoggedIn}) {
+  if (isLoggedIn) {
+    return <Link 
+          href="/marketplace-upload" 
+          className="text-white hover:text-white/90 px-3 py-2 text-sm font-medium transition-all"
+        >
+          Upload Tool
+        </Link>
+  } else {
+    return null;
+  }
+}
+
+function MarketplaceLinkMobile({isLoggedIn, setMobileMenuOpen}) {
+  if (isLoggedIn) {
+    return <Link 
+              href="/marketplace-upload" 
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Upload Tool
+            </Link>
+  } else {
+    return null;
+  }
+}
+
 const Header = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const [session, setSession] = useState<Session | null>(null)
+  const { supabase } = useSupabase();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => listener.subscription.unsubscribe()
+  }, [])
 
   // Initialize window properties
   useEffect(() => {
@@ -83,12 +146,7 @@ const Header = () => {
         >
           Marketplace
         </Link>
-        <Link 
-          href="/marketplace-upload" 
-          className="text-white hover:text-white/90 px-3 py-2 text-sm font-medium transition-all"
-        >
-          Upload Tool
-        </Link>
+        <MarketplaceLink isLoggedIn={session} />
         <Link 
           href="/wishlist" 
           className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center"
@@ -139,31 +197,23 @@ const Header = () => {
             >
               Marketplace
             </Link>
+            <MarketplaceLinkMobile isLoggedIn={session} setMobileMenuOpen={setMobileMenuOpen} />
             <Link 
               href="/wishlist" 
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               onClick={() => setMobileMenuOpen(false)}
             >
               <span className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
                 Wishlist
               </span>
             </Link>
-            <Link 
-              href="/signin" 
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Sign in
-            </Link>
+            <SignInMobile isLoggedIn={session} setMobileMenuOpen={setMobileMenuOpen} />
           </div>
         </div>
       )}
 
       {/* Hidden admin panel that appears with triple-click */}
-      {showAdmin && (
+      {/* {showAdmin && (
         <div className="absolute top-full right-6 md:right-10 mt-2 bg-white p-4 rounded-lg shadow-lg z-50">
           <h3 className="text-lg font-semibold mb-2">Admin Links</h3>
           <ul className="space-y-2">
@@ -177,7 +227,7 @@ const Header = () => {
             </li>
           </ul>
         </div>
-      )}
+      )} */}
     </header>
   );
 };

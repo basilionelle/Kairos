@@ -2,11 +2,13 @@
 
 import { ClientWrapper } from '@/components/ClientWrapper';
 import  SignInButton  from '@/components/SignInButton';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import ThemeToggle from '../../components/ThemeToggle';
 import { useTheme } from '../../components/ThemeProvider';
+import { useSupabase } from '@/components/SupabaseProvider'
+import type { Session } from '@supabase/supabase-js'
 
 // Category type
 type Category = 'newest' | 'top-rated' | 'study-aids' | 'organization' | 'college' | 'all';
@@ -124,15 +126,76 @@ interface AppCard {
   link: string;
 }
 
+function MarketplaceLink({isLoggedIn}) {
+  if (isLoggedIn) {
+    return <Link 
+            href="/marketplace-upload" 
+            className="bg-white text-kairos-primary dark:text-kairos-dark px-4 py-1.5 rounded-full text-sm font-medium hover:bg-opacity-95 transition-all shadow-sm"
+          >
+            Upload Tool
+          </Link>
+  }
+  return null;
+}
+
+function SignInMobile({isLoggedIn, setMobileMenuOpen}) {
+  if (isLoggedIn) {
+    return <Link 
+              href="/dashboard" 
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Dashboard
+            </Link>;
+  }
+  return <Link 
+              href="/signin" 
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Sign in
+            </Link>;
+}
+
+function MarketplaceLinkMobile({isLoggedIn, setMobileMenuOpen}) {
+  if (isLoggedIn) {
+    return <Link 
+              href="/marketplace-upload" 
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Upload Tool
+            </Link>
+  } else {
+    return null;
+  }
+}
+
 function MarketplaceContent() {
   const { theme } = useTheme();
   const [activeCategory, setActiveCategory] = useState<Category>('all');
   const [isSticky, setIsSticky] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [apps, setApps] = useState<AppData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showContactPopup, setShowContactPopup] = useState(false);
+  const [session, setSession] = useState<Session | null>(null)
+  const { supabase } = useSupabase();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => listener.subscription.unsubscribe()
+  }, [])
   
   // Handle scroll for sticky category bar
   useEffect(() => {
@@ -267,12 +330,9 @@ function MarketplaceContent() {
           >
             Contact Us
           </button>
-          <Link 
-            href="/marketplace-upload" 
-            className="bg-white text-kairos-primary dark:text-kairos-dark px-4 py-1.5 rounded-full text-sm font-medium hover:bg-opacity-95 transition-all shadow-sm"
-          >
-            Upload Tool
-          </Link>
+
+          <MarketplaceLink isLoggedIn={session} />
+
           <Link 
             href="/wishlist" 
             className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-all shadow-sm flex items-center"
@@ -284,6 +344,42 @@ function MarketplaceContent() {
           </Link>
           <SignInButton></SignInButton>
         </div>
+
+        {mobileMenuOpen && (
+        <div 
+          ref={menuRef}
+          className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50 transform origin-top-right transition-all duration-200 ease-out"
+        >
+          <div className="py-1">
+            <Link 
+              href="/" 
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link 
+              href="/marketplace" 
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Marketplace
+            </Link>
+            <MarketplaceLinkMobile isLoggedIn={session} setMobileMenuOpen={setMobileMenuOpen} />
+            <Link 
+              href="/wishlist" 
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <span className="flex items-center">
+                Wishlist
+              </span>
+            </Link>
+            <SignInMobile isLoggedIn={session} setMobileMenuOpen={setMobileMenuOpen} />
+          </div>
+        </div>
+      )}
+
       </header>
 
       {/* Contact Popup */}
@@ -356,36 +452,6 @@ function MarketplaceContent() {
             >
               Top Rated
             </button>
-            <button
-              onClick={() => setActiveCategory('study-aids')}
-              className={`px-5 py-2.5 rounded-full whitespace-nowrap transition-all duration-200 ${
-                activeCategory === 'study-aids'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white/80 text-kairos-primary hover:bg-white shadow'
-              }`}
-            >
-              Study Aids
-            </button>
-            <button
-              onClick={() => setActiveCategory('organization')}
-              className={`px-5 py-2.5 rounded-full whitespace-nowrap transition-all duration-200 ${
-                activeCategory === 'organization'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white/80 text-kairos-primary hover:bg-white shadow'
-              }`}
-            >
-              Organization
-            </button>
-            <button
-              onClick={() => setActiveCategory('college')}
-              className={`px-5 py-2.5 rounded-full whitespace-nowrap transition-all duration-200 ${
-                activeCategory === 'college'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white/80 text-kairos-primary hover:bg-white shadow'
-              }`}
-            >
-              College
-            </button>
           </div>
         </div>
 
@@ -435,279 +501,6 @@ function MarketplaceContent() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* DLSU GPA Calculator Card - Hardcoded */}
-            {(activeCategory === 'all' || activeCategory === 'study-aids' || activeCategory === 'college') && (
-              <motion.div
-                className="bg-gradient-to-br from-green-400 to-teal-500 rounded-xl shadow-xl shadow-teal-200/40 hover:scale-[1.02] transition-all duration-300 overflow-hidden"
-                whileHover={{ y: -5 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-              <a href="https://dlsugpacalculator.netlify.app/" target="_blank" rel="noopener noreferrer">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="bg-teal-400 p-2 rounded-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex space-x-2">
-                      <div className="bg-teal-600/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
-                        Study Aids
-                      </div>
-                      <div className="bg-indigo-600/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
-                        College
-                      </div>
-                    </div>
-                  </div>
-                  <h3 className="text-white text-lg font-semibold mb-1">DLSU GPA Calculator</h3>
-                  <p className="text-white/90 text-sm mb-3">A simple and intuitive calculator for DLSU students to compute their GPA based on the university's grading system.</p>
-                  <div className="flex justify-between items-center">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`h-4 w-4 ${i < 4 ? 'text-yellow-300' : 'text-gray-300'}`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="text-white/80 text-xs">De La Salle University</span>
-                  </div>
-                </div>
-              </a>
-              </motion.div>
-            )}
-            
-            {/* DLSU Lost and Found Card - Hardcoded */}
-            {(activeCategory === 'all' || activeCategory === 'college') && (
-              <motion.div
-                className="bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl shadow-xl shadow-purple-200/40 hover:scale-[1.02] transition-all duration-300 overflow-hidden"
-                whileHover={{ y: -5 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-              <a href="https://dlsulostandfound.netlify.app/" target="_blank" rel="noopener noreferrer">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="bg-indigo-400 p-2 rounded-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-                    <div className="bg-indigo-600/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
-                      College
-                    </div>
-                  </div>
-                  <h3 className="text-white text-lg font-semibold mb-1">DLSU Lost and Found</h3>
-                  <p className="text-white/90 text-sm mb-3">A platform for DLSU students to report and find lost items on campus. Simplifies the process of recovering lost belongings.</p>
-                  <div className="flex justify-between items-center">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`h-4 w-4 ${i < 5 ? 'text-yellow-300' : 'text-gray-300'}`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="text-white/80 text-xs">De La Salle University</span>
-                  </div>
-                </div>
-              </a>
-              </motion.div>
-            )}
-            
-            {/* Skippy App Card - Hardcoded */}
-            {(activeCategory === 'all' || activeCategory === 'college') && (
-              <motion.div
-                className="bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl shadow-xl shadow-blue-200/40 hover:scale-[1.02] transition-all duration-300 overflow-hidden"
-                whileHover={{ y: -5 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-              <a href="https://v0-skippy-app.vercel.app/" target="_blank" rel="noopener noreferrer">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="bg-blue-400 p-2 rounded-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div className="bg-blue-600/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
-                      College
-                    </div>
-                  </div>
-                  <h3 className="text-white text-lg font-semibold mb-1">Skippy</h3>
-                  <p className="text-white/90 text-sm mb-3">Generate believable excuses for missing class in the Philippines. No logs. No traces. Just alibis.</p>
-                  <div className="flex justify-between items-center">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`h-4 w-4 ${i < 4 ? 'text-yellow-300' : 'text-gray-300'}`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="text-white/80 text-xs">College App</span>
-                  </div>
-                </div>
-              </a>
-              </motion.div>
-            )}
-            
-            {/* LoveSalle App Card - Hardcoded */}
-            {(activeCategory === 'all' || activeCategory === 'college') && (
-              <motion.div
-                className="bg-gradient-to-br from-pink-400 to-rose-500 rounded-xl shadow-xl shadow-rose-200/40 hover:scale-[1.02] transition-all duration-300 overflow-hidden"
-                whileHover={{ y: -5 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-              <a href="https://lovesalle.netlify.app/" target="_blank" rel="noopener noreferrer">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="bg-rose-400 p-2 rounded-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </div>
-                    <div className="bg-rose-600/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
-                      College
-                    </div>
-                  </div>
-                  <h3 className="text-white text-lg font-semibold mb-1">LoveSalle</h3>
-                  <p className="text-white/90 text-sm mb-3">Find your perfect match at De La Salle University. Connect with fellow Lasallians who share your interests and values.</p>
-                  <div className="flex justify-between items-center">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`h-4 w-4 ${i < 5 ? 'text-yellow-300' : 'text-gray-300'}`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="text-white/80 text-xs">De La Salle University</span>
-                  </div>
-                </div>
-              </a>
-              </motion.div>
-            )}
-            
-            {/* TutorPH App Card - Hardcoded */}
-            {(activeCategory === 'all' || activeCategory === 'study-aids') && (
-              <motion.div
-                className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl shadow-xl shadow-amber-200/40 hover:scale-[1.02] transition-all duration-300 overflow-hidden"
-                whileHover={{ y: -5 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-              <a href="https://tutorph.netlify.app/" target="_blank" rel="noopener noreferrer">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="bg-amber-400 p-2 rounded-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                    </div>
-                    <div className="bg-amber-600/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
-                      Study Aids
-                    </div>
-                  </div>
-                  <h3 className="text-white text-lg font-semibold mb-1">TutorPH</h3>
-                  <p className="text-white/90 text-sm mb-3">Connect with qualified tutors across the Philippines for personalized learning in any subject. Improve your grades with expert guidance.</p>
-                  <div className="flex justify-between items-center">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`h-4 w-4 ${i < 5 ? 'text-yellow-300' : 'text-gray-300'}`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="text-white/80 text-xs">Philippines</span>
-                  </div>
-                </div>
-              </a>
-              </motion.div>
-            )}
-            
-            {/* Archer Asks App Card - Hardcoded */}
-            {(activeCategory === 'all' || activeCategory === 'study-aids' || activeCategory === 'college') && (
-              <motion.div
-                className="bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl shadow-xl shadow-green-200/40 hover:scale-[1.02] transition-all duration-300 overflow-hidden"
-                whileHover={{ y: -5 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-              <a href="https://archerasks.vercel.app/chat" target="_blank" rel="noopener noreferrer">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="bg-emerald-400 p-2 rounded-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                      </svg>
-                    </div>
-                    <div className="flex space-x-2">
-                      <div className="bg-emerald-600/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
-                        Study Aids
-                      </div>
-                      <div className="bg-indigo-600/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
-                        College
-                      </div>
-                    </div>
-                  </div>
-                  <h3 className="text-white text-lg font-semibold mb-1">Archer Asks</h3>
-                  <p className="text-white/90 text-sm mb-3">AI-powered chat assistant designed specifically for DLSU students. Get answers to academic questions, campus information, and more.</p>
-                  <div className="flex justify-between items-center">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`h-4 w-4 ${i < 5 ? 'text-yellow-300' : 'text-gray-300'}`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="text-white/80 text-xs">De La Salle University</span>
-                  </div>
-                </div>
-              </a>
-              </motion.div>
-            )}
             
             {/* Dynamically loaded apps */}
             {apps.map((app, index) => {
@@ -723,62 +516,31 @@ function MarketplaceContent() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
-                  {style.layout === 'horizontal' ? (
-                    <a href={app.link} target="_blank" rel="noopener noreferrer">
-                      <div className="flex h-full p-6">
-                        <div className="mr-4 flex-shrink-0">
-                          {renderAppIcon(app)}
-                        </div>
-                        <div>
-                          <div className="flex items-center mb-1">
-                            <h3 className={`text-lg font-semibold ${style.text} mr-2`}>{app.name}</h3>
-                            {app.is_new && (
-                              <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full">NEW</span>
-                            )}
-                          </div>
-                          <p className={`text-sm ${style.text === 'text-white' ? 'text-white/90' : 'opacity-80'}`}>
-                            {app.description}
-                          </p>
-                          <div className="mt-2">
-                            {renderStars(app.rating, style.stars)}
-                          </div>
-                          {app.university && (
-                            <div className="mt-1">
-                              <span className={`text-xs ${style.text === 'text-white' ? 'text-white/80' : 'text-gray-600'}`}>
-                                {app.university}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                  <a href={app.link} target="_blank" rel="noopener noreferrer">
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+
+                      <div className="mr-4 flex-shrink-0">
+                        {renderAppIcon(app)}
                       </div>
-                    </a>
-                  ) : (
-                    <a href={app.link} target="_blank" rel="noopener noreferrer">
-                      <div className="flex flex-col space-y-2 h-full p-6">
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 rounded-lg bg-white/10 shadow-inner shadow-black/10">
-                            {renderAppIcon(app)}
-                          </div>
-                          <h3 className={`text-lg font-semibold ${style.text} leading-tight`}>
-                            {app.name}
-                          </h3>
-                        </div>
-                        <p className={`text-sm ${style.text === 'text-white' ? 'text-white/90' : 'opacity-80'} leading-tight`}>
-                          {app.description}
-                        </p>
-                        <div className="mt-auto pt-2 border-t border-white/10">
-                          {renderStars(app.rating, style.stars)}
-                        </div>
-                        {app.university && (
-                          <div className="mt-1">
-                            <span className={`text-xs ${style.text === 'text-white' ? 'text-white/80' : 'text-gray-600'}`}>
-                              {app.university}
-                            </span>
-                          </div>
+
+                      <div className="flex space-x-2">
+                        {app.is_new && (
+                        <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full">NEW</span>
                         )}
                       </div>
-                    </a>
-                  )}
+
+                    </div>
+                    <h3 className="text-white text-lg font-semibold mb-1">{app.name}</h3>
+                    <p className="text-white/90 text-sm mb-3">{app.description}</p>
+                    <div className="flex justify-between items-center">
+                      <div className="mt-2">
+                        {renderStars(app.rating, style.stars)}
+                      </div>
+                      <span className="text-white/80 text-xs">{app.university}</span>
+                    </div>
+                  </div>
+                </a>
                 </motion.div>
               );
             })}
