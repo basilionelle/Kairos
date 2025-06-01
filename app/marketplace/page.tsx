@@ -126,7 +126,7 @@ interface AppCard {
   link: string;
 }
 
-function MarketplaceLink({isLoggedIn}) {
+function MarketplaceLink({isLoggedIn} : {isLoggedIn : Session | null}) {
   if (isLoggedIn) {
     return <Link 
             href="/marketplace-upload" 
@@ -138,7 +138,7 @@ function MarketplaceLink({isLoggedIn}) {
   return null;
 }
 
-function SignInMobile({isLoggedIn, setMobileMenuOpen}) {
+function SignInMobile({isLoggedIn, setMobileMenuOpen} : {isLoggedIn : Session | null}) {
   if (isLoggedIn) {
     return <Link 
               href="/dashboard" 
@@ -157,7 +157,7 @@ function SignInMobile({isLoggedIn, setMobileMenuOpen}) {
             </Link>;
 }
 
-function MarketplaceLinkMobile({isLoggedIn, setMobileMenuOpen}) {
+function MarketplaceLinkMobile({isLoggedIn, setMobileMenuOpen} : {isLoggedIn : Session | null}) {
   if (isLoggedIn) {
     return <Link 
               href="/marketplace-upload" 
