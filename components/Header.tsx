@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-function SignInMobile({isLoggedIn, setMobileMenuOpen} : {isLoggedIn : Session | null}) {
+function SignInMobile({isLoggedIn, setMobileMenuOpen} : {isLoggedIn : Session | null, setMobileMenuOpen : Function}) {
   if (isLoggedIn) {
     return <Link 
               href="/dashboard" 
@@ -46,7 +46,7 @@ function MarketplaceLink({isLoggedIn} : {isLoggedIn : Session | null}) {
   }
 }
 
-function MarketplaceLinkMobile({isLoggedIn, setMobileMenuOpen} : {isLoggedIn : Session | null}) {
+function MarketplaceLinkMobile({isLoggedIn, setMobileMenuOpen} : {isLoggedIn : Session | null, setMobileMenuOpen : Function}) {
   if (isLoggedIn) {
     return <Link 
               href="/marketplace-upload" 
