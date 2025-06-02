@@ -41,8 +41,6 @@ export async function POST(request: NextRequest) {
           description: body.description || '',
           mockup_link: body.mockupLink || '',
           user_id: user?.id || '00000000-0000-0000-0000-000000000000', // Default anonymous user ID
-          author_name: user?.user_metadata?.full_name || 'Anonymous Wisher',
-          author_avatar: user?.user_metadata?.avatar_url || null,
         },
       ])
       .select();
@@ -101,14 +99,16 @@ export async function GET(request: NextRequest) {
     // Apply sorting
     if (sortBy === 'newest') {
       query = query.order('created_at', { ascending: false });
-    } else if (sortBy === 'trending') {
-      // For trending, we could use a more complex algorithm
-      // This is a simplified version that considers votes and recency
-      query = query.order('votes', { ascending: false }).order('created_at', { ascending: false });
-    } else {
-      // Default sort by votes
-      query = query.order('votes', { ascending: false });
-    }
+    } 
+    
+    // else if (sortBy === 'trending') {
+    //   // For trending, we could use a more complex algorithm
+    //   // This is a simplified version that considers votes and recency
+    //   query = query.order('votes', { ascending: false }).order('created_at', { ascending: false });
+    // } else {
+    //   // Default sort by votes
+    //   query = query.order('votes', { ascending: false });
+    // }
     
     const { data, error } = await query;
     

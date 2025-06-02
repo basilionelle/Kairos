@@ -9,6 +9,24 @@ import WishlistLeaderboard from '@/components/wishlist/WishlistLeaderboard';
 import AchievementPanel from '@/components/wishlist/AchievementPanel';
 import SearchAndFilters from '@/components/wishlist/SearchAndFilters';
 import { useTheme } from '@/components/ThemeProvider';
+import { useSupabase } from '@/components/SupabaseProvider'
+import type { Session } from '@supabase/supabase-js'
+
+function WishlistSubmissionDesktop({session} : {session: Session | null}) {
+  if (session) {
+    return <WishlistSubmission />;
+  } else {
+    return null;
+  }
+}
+
+function WishlistSubmissionMobile({session, setShowMobileSubmit} : {session: Session | null, setShowMobileSubmit: Function}) {
+  if (session) {
+    return <WishlistSubmission isMobile={true} onClose={() => setShowMobileSubmit(false)} />;
+  } else {
+    return null;
+  }
+}
 
 export default function WishlistPage() {
   const { theme } = useTheme();
@@ -16,6 +34,20 @@ export default function WishlistPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showMobileSubmit, setShowMobileSubmit] = useState(false);
+  const [session, setSession] = useState<Session | null>(null)
+  const { supabase } = useSupabase();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => listener.subscription.unsubscribe()
+  }, [])
 
   return (
     <ClientWrapper>
@@ -41,7 +73,7 @@ export default function WishlistPage() {
             <div className="hidden md:grid grid-cols-12 gap-6">
               {/* Left Column: Submit Panel & Leaderboard */}
               <div className="col-span-3">
-                <WishlistSubmission />
+                <WishlistSubmissionDesktop session={session} />
                 <div className="mt-6">
                   <WishlistLeaderboard />
                 </div>
@@ -91,7 +123,7 @@ export default function WishlistPage() {
                   />
                 </>
               ) : (
-                <WishlistSubmission isMobile={true} onClose={() => setShowMobileSubmit(false)} />
+                <WishlistSubmissionMobile session={session} setShowMobileSubmit={setShowMobileSubmit} />
               )}
             </div>
 
