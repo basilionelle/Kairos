@@ -8,7 +8,8 @@ import { motion } from 'framer-motion';
 import ThemeToggle from '../../components/ThemeToggle';
 import { useTheme } from '../../components/ThemeProvider';
 import { useSupabase } from '@/components/SupabaseProvider'
-import type { Session } from '@supabase/supabase-js'
+import type { Session } from '@supabase/supabase-js';
+import Header from '../../components/Header';
 
 // Category type
 type Category = 'newest' | 'top-rated' | 'study-aids' | 'organization' | 'college' | 'all';
@@ -317,103 +318,7 @@ function MarketplaceContent() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      {/* Header with branding */}
-      <header className="flex justify-between items-center px-6 py-4">
-        <Link href="/" className="text-kairos-primary dark:text-white font-bold text-4xl tracking-tight leading-none">
-          Kairos
-        </Link>
-        <div className="flex items-center space-x-4">
-          <ThemeToggle />
-          <button 
-            onClick={() => setShowContactPopup(true)}
-            className="bg-blue-500 text-white px-4 py-1.5 rounded-full text-sm font-medium hover:bg-blue-600 transition-all shadow-sm"
-          >
-            Contact Us
-          </button>
-
-          <MarketplaceLink isLoggedIn={session} />
-
-          <Link 
-            href="/wishlist" 
-            className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-all shadow-sm flex items-center"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Wishlist
-          </Link>
-          <SignInButton></SignInButton>
-        </div>
-
-        {mobileMenuOpen && (
-        <div 
-          ref={menuRef}
-          className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50 transform origin-top-right transition-all duration-200 ease-out"
-        >
-          <div className="py-1">
-            <Link 
-              href="/" 
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link 
-              href="/marketplace" 
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Marketplace
-            </Link>
-            <MarketplaceLinkMobile isLoggedIn={session} setMobileMenuOpen={setMobileMenuOpen} />
-            <Link 
-              href="/wishlist" 
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <span className="flex items-center">
-                Wishlist
-              </span>
-            </Link>
-            <SignInMobile isLoggedIn={session} setMobileMenuOpen={setMobileMenuOpen} />
-          </div>
-        </div>
-      )}
-
-      </header>
-
-      {/* Contact Popup */}
-      {showContactPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
-            <button 
-              onClick={() => setShowContactPopup(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Contact Us</h3>
-            <div className="space-y-3">
-              <div className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <span className="text-gray-700 dark:text-gray-300">Email: </span>
-                <a href="mailto:moodevelopers@gmail.com" className="ml-2 text-blue-600 dark:text-blue-400 hover:underline">moodevelopers@gmail.com</a>
-              </div>
-              <div className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10l.66 1.6L9.1 8.66 15 14l6.1-5.34.66 1.6-6.76 5.92L9.1 10.34 3 15.92V10z" />
-                </svg>
-                <span className="text-gray-700 dark:text-gray-300">Instagram: </span>
-                <a href="https://instagram.com/kairos__ph" target="_blank" rel="noopener noreferrer" className="ml-2 text-pink-600 dark:text-pink-400 hover:underline">@kairos__ph</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <Header />
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 pb-16">
         {/* Categories Navigation - with sticky functionality */}
